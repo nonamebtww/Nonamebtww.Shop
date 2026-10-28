@@ -1,7 +1,7 @@
 using System.Collections.Concurrent;
 using Nonamebtww.Shop.Application.Models.DTOs.Payments;
-using Nonamebtww.Shop.Application.Models.Enums;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Payments;
+using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 using Nonamebtww.Shop.Infrastructure.Options;
 
 namespace Nonamebtww.Shop.Infrastructure.Payments;

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Nonamebtww.Shop.Domain.Aggregates.RoleAggregate;
 using Nonamebtww.Shop.Domain.Aggregates.UserAggregate;
 
@@ -29,7 +30,7 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User> {
 
     builder.Property(x => x.Login).HasConversion(ValueObjectConverters.Login).HasMaxLength(32).IsRequired();
     builder.Property(x => x.Email).HasConversion(ValueObjectConverters.Email).HasMaxLength(254).IsRequired();
-    builder.Property(x => x.Phone).HasConversion(ValueObjectConverters.Phone).HasMaxLength(16);
+    builder.Property(x => x.Phone).HasConversion((ValueConverter)ValueObjectConverters.Phone).HasMaxLength(16);
     builder.HasIndex(x => x.Login).IsUnique();
     builder.HasIndex(x => x.Email).IsUnique();
     builder.HasIndex(x => x.Phone).IsUnique();
