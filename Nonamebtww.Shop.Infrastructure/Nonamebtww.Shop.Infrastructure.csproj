@@ -11,4 +11,9 @@
       <ProjectReference Include="..\Nonamebtww.Shop.Application\Nonamebtww.Shop.Application.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="10.0.14" />
+      <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.0" />
+    </ItemGroup>
+
 </Project>
