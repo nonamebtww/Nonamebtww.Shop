@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Security;
 
 namespace Nonamebtww.Shop.Infrastructure.Security;
 
@@ -6,7 +7,7 @@ namespace Nonamebtww.Shop.Infrastructure.Security;
 /// Хэширование пароля PBKDF2-SHA256 с солью.
 /// Формат строки: "pbkdf2-sha256$&lt;итерации&gt;$&lt;соль base64&gt;$&lt;хэш base64&gt;".
 /// </summary>
-public sealed class Pbkdf2PasswordHasher {
+public sealed class Pbkdf2PasswordHasher : IPasswordHasher {
   private const string Prefix = "pbkdf2-sha256";
   private const int SaltSize = 16;
   private const int HashSize = 32;
@@ -21,12 +22,12 @@ public sealed class Pbkdf2PasswordHasher {
     return $"{Prefix}${Iterations}${Convert.ToBase64String(salt)}${Convert.ToBase64String(hash)}";
   }
 
-  public bool Verify(string password, string passwordHash) {
-    if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(passwordHash)) {
+  public bool Verify(string password, string hash) {
+    if (string.IsNullOrEmpty(password) || string.IsNullOrEmpty(hash)) {
       return false;
     }
 
-    var parts = passwordHash.Split('$');
+    var parts = hash.Split('$');
 
     if (parts.Length != 4 || parts[0] != Prefix || !int.TryParse(parts[1], out var iterations)) {
       return false;

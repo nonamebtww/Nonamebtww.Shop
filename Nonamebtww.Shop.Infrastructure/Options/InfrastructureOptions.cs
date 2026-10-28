@@ -23,8 +23,11 @@ public sealed class InfrastructureOptions {
   /// <summary>Базовый адрес backend API (используется только при UseRemoteApi = true).</summary>
   public Uri? ApiBaseUrl { get; set; }
 
-  /// <summary>Срок жизни локальной сессии.</summary>
-  public TimeSpan SessionLifetime { get; set; } = TimeSpan.FromDays(30);
+  /// <summary>Срок жизни локального access-токена.</summary>
+  public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromDays(30);
+
+  /// <summary>Fake-платёжка отклоняет все платежи (для проверки ветки «оплата отклонена»).</summary>
+  public bool DeclinePayments { get; set; }
 
   /// <summary>Имитация задержки сети в fake-API, чтобы UI показывал индикаторы загрузки.</summary>
   public TimeSpan FakeApiLatency { get; set; } = TimeSpan.FromMilliseconds(150);
