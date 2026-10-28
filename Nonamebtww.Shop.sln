@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nonamebtww.Shop", "Nonamebtww.Shop\Nonamebtww.Shop.csproj", "{7918FFE5-1357-4478-9D87-6A6100097788}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{E57DC0F0-68B3-4FE6-A37E-8291B4198084}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nonamebtww.Shop.Domain", "Nonamebtww.Shop.Domain\Nonamebtww.Shop.Domain.csproj", "{E0A86462-D378-4629-8884-D8471AF9AEFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Nonamebtww.Shop.Application", "Nonamebtww.Shop.Application\Nonamebtww.Shop.Application.csproj", "{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7918FFE5-1357-4478-9D87-6A6100097788}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7918FFE5-1357-4478-9D87-6A6100097788}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7918FFE5-1357-4478-9D87-6A6100097788}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7918FFE5-1357-4478-9D87-6A6100097788}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E0A86462-D378-4629-8884-D8471AF9AEFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E0A86462-D378-4629-8884-D8471AF9AEFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E0A86462-D378-4629-8884-D8471AF9AEFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E0A86462-D378-4629-8884-D8471AF9AEFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E0A86462-D378-4629-8884-D8471AF9AEFB} = {E57DC0F0-68B3-4FE6-A37E-8291B4198084}
+		{D90ECACA-2CE7-44D2-870F-2C0A3F5FE17E} = {E57DC0F0-68B3-4FE6-A37E-8291B4198084}
+	EndGlobalSection
+EndGlobal
