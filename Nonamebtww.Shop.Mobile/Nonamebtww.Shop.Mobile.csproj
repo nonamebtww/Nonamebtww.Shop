@@ -53,4 +53,9 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0"/>
     </ItemGroup>
 
+    <ItemGroup>
+        <ProjectReference Include="..\Nonamebtww.Shop.Application\Nonamebtww.Shop.Application.csproj"/>
+        <ProjectReference Include="..\Nonamebtww.Shop.Infrastructure\Nonamebtww.Shop.Infrastructure.csproj"/>
+    </ItemGroup>
+
 </Project>
