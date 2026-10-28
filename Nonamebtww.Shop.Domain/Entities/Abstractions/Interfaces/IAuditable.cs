@@ -1,5 +1,7 @@
 namespace Nonamebtww.Shop.Domain.Entities.Abstractions.Interfaces;
 
+/// <summary>Сущность с датой создания и последнего изменения.</summary>
 public interface IAuditable {
-  // TODO
+  public DateTimeOffset CreatedAt { get; }
+  public DateTimeOffset? UpdatedAt { get; }
 }
