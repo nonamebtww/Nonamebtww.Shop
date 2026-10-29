@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.UsersPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:UsersViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Пользователи">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Блокировка" Command="{Binding BlockByIdentifierCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
+        <SearchBar Placeholder="Логин, почта, телефон или имя" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" />
+        <Picker Grid.Row="1" Title="Все роли" ItemsSource="{Binding RoleFilters}" SelectedItem="{Binding SelectedRoleFilter}" />
+
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Users}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <Label Text="Пользователи не найдены" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" Margin="0,48" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:UserItem">
+                        <Border Style="{StaticResource Card}">
+                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding Title}" Style="{StaticResource BodyLabel}" FontFamily="OpenSansSemibold" />
+                                <Label Grid.Column="1" Text="{Binding RoleText}" Style="{StaticResource CaptionLabel}" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Contacts}" Style="{StaticResource CaptionLabel}" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="2" Text="{Binding BlockText}" TextColor="{StaticResource Danger}" FontSize="12"
+                                       IsVisible="{Binding IsBlocked}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:UsersViewModel}}, x:DataType=vm:UsersViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ContentPageBase>

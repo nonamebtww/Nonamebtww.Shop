@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.CategoryEditPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:CategoryEditViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Категория">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="10">
+            <Label Text="{Binding Title}" Style="{StaticResource TitleLabel}" />
+
+            <Label Text="Родительская категория" Style="{StaticResource CaptionLabel}" />
+            <Picker ItemsSource="{Binding ParentOptions}" SelectedItem="{Binding SelectedParent}" Title="Без родителя" />
+
+            <Label Text="Название" Style="{StaticResource CaptionLabel}" />
+            <Border Style="{StaticResource FieldBorder}">
+                <Entry Text="{Binding Name}" />
+            </Border>
+            <Label Text="Описание" Style="{StaticResource CaptionLabel}" />
+            <Border Style="{StaticResource FieldBorder}">
+                <Editor Text="{Binding Description}" AutoSize="TextChanges" MinimumHeightRequest="80" />
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto,Auto">
+                <Label Text="Фото" Style="{StaticResource SectionLabel}" />
+                <Button Grid.Column="1" Text="Выбрать" Style="{StaticResource TextButton}" Command="{Binding PickPhotoCommand}" />
+                <Button Grid.Column="2" Text="Удалить" Style="{StaticResource TextButton}" Command="{Binding RemovePhotoCommand}"
+                        IsVisible="{Binding Photo, Converter={StaticResource IsNotEmpty}}" />
+            </Grid>
+            <Image Source="{Binding PhotoPreview}" HeightRequest="140" Aspect="AspectFit" HorizontalOptions="Start" />
+
+            <Button Text="Сохранить" Command="{Binding SaveCommand}" Margin="0,8,0,0" />
+            <Button Text="Удалить категорию" Style="{StaticResource DangerButton}" Command="{Binding DeleteCommand}" IsVisible="{Binding IsExisting}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ContentPageBase>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Orders.OrderDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Orders"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:OrderDetailsViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="{Binding Title}">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12" IsVisible="{Binding IsLoaded}">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="{Binding DateText}" Style="{StaticResource CaptionLabel}" VerticalTextAlignment="Center" />
+                <Border Grid.Column="1" BackgroundColor="{Binding StatusColor}" StrokeThickness="0" StrokeShape="RoundRectangle 10">
+                    <Label Text="{Binding StatusText}" Style="{StaticResource BadgeLabel}" />
+                </Border>
+            </Grid>
+
+            <!-- Status timeline (order state diagram) -->
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Timeline}" Spacing="6">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:StatusStep">
+                            <Grid ColumnDefinitions="24,*" ColumnSpacing="8">
+                                <Label Text="{Binding Glyph}" TextColor="{Binding Color}" FontSize="16" HorizontalTextAlignment="Center" />
+                                <Label Grid.Column="1" Text="{Binding Caption}" Style="{StaticResource BodyLabel}" Opacity="{Binding Opacity}" />
+                            </Grid>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </Border>
+
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Доставка" Style="{StaticResource SectionLabel}" Margin="0" />
+                    <Label Text="{Binding DeliveryText}" Style="{StaticResource BodyLabel}" />
+                    <Label Text="{Binding AddressText}" Style="{StaticResource CaptionLabel}" IsVisible="{Binding AddressText, Converter={StaticResource IsNotEmpty}}" />
+                    <Label Text="{Binding CourierText}" Style="{StaticResource CaptionLabel}" IsVisible="{Binding CourierText, Converter={StaticResource IsNotEmpty}}" />
+                    <Label Text="Оплата" Style="{StaticResource SectionLabel}" />
+                    <Label Text="{Binding PaymentText}" Style="{StaticResource BodyLabel}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Состав заказа" Style="{StaticResource SectionLabel}" />
+            <VerticalStackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="8">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate x:DataType="items:OrderLineItem">
+                        <Border Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="10">
+                                <Image Source="{Binding Photo}" HeightRequest="56" WidthRequest="56" Aspect="AspectFill" />
+                                <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                    <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding QuantityText}" Style="{StaticResource CaptionLabel}" />
+                                </VerticalStackLayout>
+                                <Label Grid.Column="2" Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" VerticalTextAlignment="Center" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="Итого" Style="{StaticResource SectionLabel}" />
+                <Label Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" FontSize="22" />
+            </Grid>
+
+            <Button Text="{Binding PayButtonText}" Command="{Binding PayCommand}" IsVisible="{Binding CanPay}" />
+            <Button Text="Отменить заказ" Style="{StaticResource DangerButton}" Command="{Binding CancelCommand}" IsVisible="{Binding CanCancel}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ContentPageBase>

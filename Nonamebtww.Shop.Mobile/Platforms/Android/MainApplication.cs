@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Runtime;
 
-namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
 [Application]
 public class MainApplication : MauiApplication {

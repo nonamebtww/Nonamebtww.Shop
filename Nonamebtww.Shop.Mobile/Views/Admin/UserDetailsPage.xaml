@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.UserDetailsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:UserDetailsViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Пользователь">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <Border Style="{StaticResource Card}">
+                <VerticalStackLayout Spacing="4">
+                    <Label Text="{Binding NameText}" Style="{StaticResource TitleLabel}" />
+                    <Label Text="{Binding ContactsText}" Style="{StaticResource BodyLabel}" />
+                    <Label Text="{Binding RegisteredText}" Style="{StaticResource CaptionLabel}" />
+                    <Label Text="{Binding BlockText}" TextColor="{StaticResource Danger}" IsVisible="{Binding IsBlocked}" />
+                </VerticalStackLayout>
+            </Border>
+
+            <Label Text="Права" Style="{StaticResource SectionLabel}" />
+            <Label Text="{Binding RoleText}" Style="{StaticResource BodyLabel}" />
+            <Picker Title="Новая роль" ItemsSource="{Binding RoleOptions}" SelectedItem="{Binding SelectedRole}" />
+            <Button Text="{Binding ChangeRoleText}" Command="{Binding ChangeRoleCommand}" />
+
+            <Label Text="Блокировка" Style="{StaticResource SectionLabel}" />
+            <Button Text="Заблокировать" Style="{StaticResource DangerButton}" Command="{Binding BlockCommand}"
+                    IsVisible="{Binding IsBlocked, Converter={StaticResource InvertedBool}}" />
+            <Button Text="Разблокировать" Style="{StaticResource SecondaryButton}" Command="{Binding UnblockCommand}" IsVisible="{Binding IsBlocked}" />
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ContentPageBase>

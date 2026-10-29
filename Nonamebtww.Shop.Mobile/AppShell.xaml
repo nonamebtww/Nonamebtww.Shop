@@ -1,14 +1,43 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <Shell
-    x:Class="Nonamebtww.Shop.AppShell"
+    x:Class="Nonamebtww.Shop.Mobile.AppShell"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-    xmlns:pages="clr-namespace:Nonamebtww.Shop.Pages"
-    Title="Nonamebtww.Shop">
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:auth="clr-namespace:Nonamebtww.Shop.Mobile.Views.Auth"
+    xmlns:catalog="clr-namespace:Nonamebtww.Shop.Mobile.Views.Catalog"
+    xmlns:favorites="clr-namespace:Nonamebtww.Shop.Mobile.Views.Favorites"
+    xmlns:cart="clr-namespace:Nonamebtww.Shop.Mobile.Views.Cart"
+    xmlns:orders="clr-namespace:Nonamebtww.Shop.Mobile.Views.Orders"
+    xmlns:profile="clr-namespace:Nonamebtww.Shop.Mobile.Views.Profile"
+    Shell.FlyoutBehavior="Disabled"
+    Title="Nonamebtww Shop">
 
     <ShellContent
-        Title="Home"
-        ContentTemplate="{DataTemplate pages:MainPage}"
-        Route="MainPage" />
+        Route="startup"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate views:StartupPage}" />
 
+    <ShellContent
+        Route="login"
+        Shell.NavBarIsVisible="False"
+        ContentTemplate="{DataTemplate auth:LoginPage}" />
+
+    <TabBar Route="main">
+        <Tab Title="Каталог" Icon="tab_catalog.png" Route="catalog">
+            <ShellContent ContentTemplate="{DataTemplate catalog:CatalogPage}" />
+        </Tab>
+        <Tab Title="Избранное" Icon="tab_favorites.png" Route="favorites">
+            <ShellContent ContentTemplate="{DataTemplate favorites:FavoritesPage}" />
+        </Tab>
+        <Tab Title="Корзина" Icon="tab_cart.png" Route="cart">
+            <ShellContent ContentTemplate="{DataTemplate cart:CartPage}" />
+        </Tab>
+        <Tab Title="Заказы" Icon="tab_orders.png" Route="orders">
+            <ShellContent ContentTemplate="{DataTemplate orders:OrdersPage}" />
+        </Tab>
+        <Tab Title="Профиль" Icon="tab_profile.png" Route="profile">
+            <ShellContent ContentTemplate="{DataTemplate profile:ProfilePage}" />
+        </Tab>
+    </TabBar>
 </Shell>

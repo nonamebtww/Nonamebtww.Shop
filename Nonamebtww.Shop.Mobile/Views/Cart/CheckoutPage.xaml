@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Cart.CheckoutPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Cart"
+    x:DataType="vm:CheckoutViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Оформление заказа">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="16" Spacing="12">
+            <!-- Step 1: delivery and payment -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPaymentStep, Converter={StaticResource InvertedBool}}">
+                <Border Style="{StaticResource Card}">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <Label Text="{Binding SummaryText}" Style="{StaticResource BodyLabel}" />
+                        <Label Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" />
+                    </Grid>
+                </Border>
+
+                <Label Text="Доставка курьером" Style="{StaticResource SectionLabel}" />
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <RadioButton Content="Обычная" GroupName="delivery" IsChecked="{Binding IsStandardDelivery}" />
+                        <RadioButton Content="Срочная" GroupName="delivery" IsChecked="{Binding IsExpressDelivery}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Label Text="Адрес доставки" Style="{StaticResource SectionLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Город" Text="{Binding City}" />
+                </Border>
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Улица" Text="{Binding Street}" />
+                </Border>
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Border Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Дом" Text="{Binding House}" />
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Кв." Text="{Binding Apartment}" />
+                    </Border>
+                    <Border Grid.Column="2" Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Индекс" Text="{Binding PostalCode}" Keyboard="Numeric" />
+                    </Border>
+                </Grid>
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Комментарий курьеру" Text="{Binding Comment}" />
+                </Border>
+
+                <Label Text="Оплата онлайн" Style="{StaticResource SectionLabel}" />
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="4">
+                        <RadioButton Content="Банковская карта" GroupName="payment" IsChecked="{Binding IsCard}" />
+                        <RadioButton Content="СБП" GroupName="payment" IsChecked="{Binding IsSbp}" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <Button Text="Подтвердить заказ" Command="{Binding PlaceOrderCommand}" Margin="0,8,0,0" />
+            </VerticalStackLayout>
+
+            <!-- Step 2: online payment through the payment system -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsPaymentStep}">
+                <Label Text="Оплата заказа" Style="{StaticResource TitleLabel}" />
+                <Label Text="{Binding OrderText}" Style="{StaticResource BodyLabel}" />
+                <Border Style="{StaticResource Card}">
+                    <VerticalStackLayout Spacing="6">
+                        <Label Text="Платёжная система (прототип)" Style="{StaticResource SectionLabel}" Margin="0" />
+                        <Label Text="Данные карты не запрашиваются: платёж проводится локальной заглушкой платёжной системы."
+                               Style="{StaticResource CaptionLabel}" />
+                        <Label Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" FontSize="24" />
+                    </VerticalStackLayout>
+                </Border>
+                <Button Text="{Binding PayButtonText}" Command="{Binding PayCommand}" />
+                <Button Text="Оплатить позже" Style="{StaticResource TextButton}" Command="{Binding PayLaterCommand}" />
+            </VerticalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ContentPageBase>

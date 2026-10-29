@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.CourierTasksPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:CourierTasksViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Мои доставки">
+
+    <Grid RowDefinitions="Auto,*" Padding="12,8,12,0" RowSpacing="8">
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Показывать завершённые" Style="{StaticResource BodyLabel}" VerticalTextAlignment="Center" />
+            <Switch Grid.Column="1" IsToggled="{Binding ShowFinished}" />
+        </Grid>
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Tasks}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <Label Text="Заданий на доставку нет" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" Margin="0,48" />
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:CourierTaskItem">
+                        <Border Style="{StaticResource Card}">
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="*,Auto">
+                                    <Label Text="{Binding Number}" Style="{StaticResource BodyLabel}" FontFamily="OpenSansSemibold" />
+                                    <Label Grid.Column="1" Text="{Binding StatusText}" Style="{StaticResource CaptionLabel}" />
+                                </Grid>
+                                <Label Text="{Binding Customer}" Style="{StaticResource BodyLabel}" />
+                                <Label Text="{Binding Address}" Style="{StaticResource CaptionLabel}" />
+                                <Label Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
+                                <Button Text="Принять заказ в доставку" IsVisible="{Binding CanAccept}"
+                                        Command="{Binding AcceptCommand, Source={RelativeSource AncestorType={x:Type vm:CourierTasksViewModel}}, x:DataType=vm:CourierTasksViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8" IsVisible="{Binding CanFinish}">
+                                    <Button Text="Вручён"
+                                            Command="{Binding ConfirmDeliveredCommand, Source={RelativeSource AncestorType={x:Type vm:CourierTasksViewModel}}, x:DataType=vm:CourierTasksViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                    <Button Grid.Column="1" Text="Не вручён" Style="{StaticResource SecondaryButton}"
+                                            Command="{Binding ReportFailedCommand, Source={RelativeSource AncestorType={x:Type vm:CourierTasksViewModel}}, x:DataType=vm:CourierTasksViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ContentPageBase>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Auth.RegisterPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Auth"
+    xmlns:enums="clr-namespace:Nonamebtww.Shop.Application.Models.Enums;assembly=Nonamebtww.Shop.Application"
+    x:DataType="vm:RegisterViewModel"
+    Title="Регистрация">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+            <!-- Step 1: registration data -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsCodeStep, Converter={StaticResource InvertedBool}}">
+                <Label Text="Создайте аккаунт" Style="{StaticResource TitleLabel}" />
+
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <RadioButton Content="По почте" IsChecked="{Binding UseEmail}" GroupName="contact" />
+                    <RadioButton Grid.Column="1" Content="По телефону" IsChecked="{Binding UsePhone}" GroupName="contact" />
+                </Grid>
+
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Логин (латиница, от 3 символов)" Text="{Binding Login}" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" />
+                </Border>
+                <Border Style="{StaticResource FieldBorder}" IsVisible="{Binding UseEmail}">
+                    <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" IsSpellCheckEnabled="False" />
+                </Border>
+                <Border Style="{StaticResource FieldBorder}" IsVisible="{Binding UsePhone}">
+                    <Entry Placeholder="Телефон, +7..." Text="{Binding Phone}" Keyboard="Telephone" />
+                </Border>
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Border Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Имя" Text="{Binding FirstName}" />
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="Фамилия" Text="{Binding LastName}" />
+                    </Border>
+                </Grid>
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Пароль (от 8 символов, буквы и цифры)" Text="{Binding Password}" IsPassword="True" />
+                </Border>
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Повторите пароль" Text="{Binding ConfirmPassword}" IsPassword="True" />
+                </Border>
+
+                <Button Text="Зарегистрироваться" Command="{Binding RegisterCommand}" />
+
+                <Label Text="или зарегистрироваться через" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+                    <Button Text="Google" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ExternalRegisterCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Google}" />
+                    <Button Grid.Column="1" Text="Apple ID" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ExternalRegisterCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Apple}" />
+                    <Button Grid.Column="2" Text="Yandex ID" Style="{StaticResource SecondaryButton}"
+                            Command="{Binding ExternalRegisterCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Yandex}" />
+                </Grid>
+            </VerticalStackLayout>
+
+            <!-- Step 2: confirmation code -->
+            <VerticalStackLayout Spacing="12" IsVisible="{Binding IsCodeStep}">
+                <Label Text="Подтвердите регистрацию" Style="{StaticResource TitleLabel}" />
+                <Label Text="{Binding CodeHint}" Style="{StaticResource BodyLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Код из 6 цифр" Text="{Binding Code}" Keyboard="Numeric" MaxLength="6" />
+                </Border>
+                <Button Text="Подтвердить" Command="{Binding ConfirmCommand}" />
+                <Button Text="Отправить код ещё раз" Style="{StaticResource TextButton}" Command="{Binding ResendCodeCommand}" />
+            </VerticalStackLayout>
+
+            <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+        </VerticalStackLayout>
+    </ScrollView>
+</views:ContentPageBase>

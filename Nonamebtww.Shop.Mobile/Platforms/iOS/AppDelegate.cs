@@ -1,6 +1,6 @@
 ﻿using Foundation;
 
-namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
 [Register("AppDelegate")]
 public class AppDelegate : MauiUIApplicationDelegate {

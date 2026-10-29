@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Cart.CartPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Cart"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:CartViewModel"
+    Shell.TabBarIsVisible="True"
+    Title="Корзина">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Очистить" Command="{Binding ClearCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="*,Auto">
+        <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Lines}" Margin="12,8">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24,64" Spacing="12" HorizontalOptions="Center">
+                        <Label Text="Корзина пуста" Style="{StaticResource SectionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="Добавьте товары из каталога" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                        <Button Text="Перейти в каталог" Command="{Binding GoToCatalogCommand}" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:CartLineItem">
+                        <Border Style="{StaticResource Card}">
+                            <Grid ColumnDefinitions="72,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
+                                <Image Grid.RowSpan="2" Source="{Binding Photo}" HeightRequest="72" WidthRequest="72" Aspect="AspectFill" VerticalOptions="Start" />
+                                <VerticalStackLayout Grid.Column="1" Spacing="2">
+                                    <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding PriceText}" Style="{StaticResource CaptionLabel}" />
+                                    <Label Text="{Binding Warning}" TextColor="{StaticResource Danger}" FontSize="12"
+                                           IsVisible="{Binding Warning, Converter={StaticResource IsNotEmpty}}" />
+                                </VerticalStackLayout>
+                                <Grid Grid.Row="1" Grid.Column="1" ColumnDefinitions="Auto,Auto,Auto,*,Auto" ColumnSpacing="6" Margin="0,6,0,0">
+                                    <Button Text="−" Style="{StaticResource StepButton}"
+                                            Command="{Binding DecreaseCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                    <Label Grid.Column="1" Text="{Binding Quantity}" Style="{StaticResource PriceLabel}" WidthRequest="28"
+                                           HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+                                    <Button Grid.Column="2" Text="+" Style="{StaticResource StepButton}"
+                                            Command="{Binding IncreaseCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                    <Label Grid.Column="3" Text="{Binding LineTotalText}" Style="{StaticResource PriceLabel}"
+                                           HorizontalTextAlignment="End" VerticalTextAlignment="Center" />
+                                    <Button Grid.Column="4" Text="✕" Style="{StaticResource IconButton}" TextColor="{StaticResource Gray500}" FontSize="16"
+                                            Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding OpenProductCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+        <Border Grid.Row="1" Style="{StaticResource Card}" StrokeShape="Rectangle" Padding="16,12" IsVisible="{Binding HasItems}">
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="8">
+                <Label Text="{Binding SummaryText}" Style="{StaticResource CaptionLabel}" />
+                <Label Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" FontSize="20" />
+                <Button Grid.Row="1" Grid.ColumnSpan="2" Text="Оформить заказ" Command="{Binding CheckoutCommand}" />
+            </Grid>
+        </Border>
+    </Grid>
+</views:ContentPageBase>

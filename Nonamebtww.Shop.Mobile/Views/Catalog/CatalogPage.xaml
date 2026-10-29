@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Catalog.CatalogPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Catalog"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:CatalogViewModel"
+    Shell.TabBarIsVisible="True"
+    Title="Каталог">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
+        <!-- Search -->
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <SearchBar Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" />
+            <Button Grid.Column="1" Text="Фильтры" Style="{StaticResource SecondaryButton}" Command="{Binding ToggleFiltersCommand}" />
+        </Grid>
+
+        <!-- Root categories -->
+        <CollectionView Grid.Row="1" ItemsSource="{Binding Categories}" ItemsLayout="HorizontalList" HeightRequest="44">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:CategoryChip">
+                    <Border Style="{StaticResource Chip}" Margin="0,0,8,0">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="BackgroundColor" Value="{StaticResource Primary}" />
+                                <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding Name}" FontSize="14" VerticalTextAlignment="Center">
+                            <Label.Triggers>
+                                <DataTrigger TargetType="Label" Binding="{Binding IsSelected}" Value="True">
+                                    <Setter Property="TextColor" Value="{StaticResource White}" />
+                                </DataTrigger>
+                            </Label.Triggers>
+                        </Label>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SelectCategoryCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Subcategories of the selected category -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="40"
+                        IsVisible="{Binding HasSubCategories}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:CategoryChip">
+                    <Border Style="{StaticResource Chip}" Margin="0,0,8,0" Padding="12,5">
+                        <Border.Triggers>
+                            <DataTrigger TargetType="Border" Binding="{Binding IsSelected}" Value="True">
+                                <Setter Property="Stroke" Value="{StaticResource Primary}" />
+                            </DataTrigger>
+                        </Border.Triggers>
+                        <Label Text="{Binding Name}" FontSize="13" VerticalTextAlignment="Center" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding SelectSubCategoryCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Filters panel -->
+        <Border Grid.Row="3" Style="{StaticResource Card}" IsVisible="{Binding IsFiltersVisible}">
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Цена, ₽" Style="{StaticResource CaptionLabel}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Border Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="от" Text="{Binding MinPrice}" Keyboard="Numeric" />
+                    </Border>
+                    <Border Grid.Column="1" Style="{StaticResource FieldBorder}">
+                        <Entry Placeholder="до" Text="{Binding MaxPrice}" Keyboard="Numeric" />
+                    </Border>
+                </Grid>
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Text="Только в наличии" Style="{StaticResource BodyLabel}" VerticalTextAlignment="Center" />
+                    <Switch Grid.Column="1" IsToggled="{Binding OnlyInStock}" />
+                </Grid>
+                <Picker Title="Сортировка" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" />
+                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+                    <Button Text="Сбросить" Style="{StaticResource SecondaryButton}" Command="{Binding ResetFiltersCommand}" />
+                    <Button Grid.Column="1" Text="Применить" Command="{Binding ApplyFiltersCommand}" />
+                </Grid>
+            </VerticalStackLayout>
+        </Border>
+
+        <!-- Products -->
+        <RefreshView Grid.Row="4" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Products}" RemainingItemsThreshold="4"
+                            RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
+                <CollectionView.ItemsLayout>
+                    <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24,48" Spacing="8" HorizontalOptions="Center">
+                        <Label Text="Ничего не найдено" Style="{StaticResource SectionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="Попробуйте изменить запрос или фильтры" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:ProductCardItem">
+                        <Border Style="{StaticResource Card}" Padding="8">
+                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
+                                <Grid>
+                                    <Image Source="{Binding Photo}" HeightRequest="130" Aspect="AspectFill" />
+                                    <ImageButton Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}}" Style="{StaticResource FavoriteButton}"
+                                            HorizontalOptions="End" VerticalOptions="Start"
+                                            Command="{Binding ToggleFavoriteCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                                <Label Grid.Row="1" Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                <Label Grid.Row="2" Text="{Binding RatingText}" Style="{StaticResource CaptionLabel}" />
+                                <Label Grid.Row="3" Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" />
+                                <Button Grid.Row="4" Text="{Binding CartButtonText}" Padding="8,6" MinimumHeightRequest="36" IsEnabled="{Binding InStock}"
+                                        Command="{Binding AddToCartCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                        CommandParameter="{Binding .}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding OpenProductCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="96" Color="Transparent" BackgroundColor="Transparent" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ContentPageBase>

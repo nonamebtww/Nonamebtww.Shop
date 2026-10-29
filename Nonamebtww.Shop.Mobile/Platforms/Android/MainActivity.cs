@@ -1,7 +1,7 @@
 ﻿using Android.App;
 using Android.Content.PM;
 
-namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
 [Activity(
   Theme = "@style/Maui.SplashTheme",

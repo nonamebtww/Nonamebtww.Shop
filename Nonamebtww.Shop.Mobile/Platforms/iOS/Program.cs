@@ -1,6 +1,6 @@
 ﻿using UIKit;
 
-namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
 public class Program {
   // This is the main entry point of the application.

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<ResourceDictionary
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
+
+    <!-- Text -->
+    <Style x:Key="TitleLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="24" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+    </Style>
+
+    <Style x:Key="SectionLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="Margin" Value="0,8,0,0" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+    </Style>
+
+    <Style x:Key="BodyLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+    </Style>
+
+    <Style x:Key="CaptionLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray500}, Dark={StaticResource Gray300}}" />
+    </Style>
+
+    <Style x:Key="PriceLabel" TargetType="Label">
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="FontSize" Value="17" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray950}, Dark={StaticResource White}}" />
+    </Style>
+
+    <Style x:Key="LinkLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="Padding" Value="0,8" />
+    </Style>
+
+    <Style x:Key="BadgeLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="FontFamily" Value="OpenSansSemibold" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+        <Setter Property="Padding" Value="8,3" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+
+    <!-- Containers -->
+    <Style x:Key="Card" TargetType="Border">
+        <Setter Property="Padding" Value="12" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 14" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardDark}}" />
+    </Style>
+
+    <Style x:Key="Chip" TargetType="Border">
+        <Setter Property="Padding" Value="14,7" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 16" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardDark}}" />
+    </Style>
+
+    <Style x:Key="FieldBorder" TargetType="Border">
+        <Setter Property="Padding" Value="12,2" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="Stroke" Value="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardDark}}" />
+    </Style>
+
+    <!-- Buttons -->
+    <Style x:Key="SecondaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray600}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}" />
+    </Style>
+
+    <Style x:Key="DangerButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+        <Setter Property="TextColor" Value="{StaticResource White}" />
+    </Style>
+
+    <Style x:Key="TextButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}" />
+        <Setter Property="Padding" Value="8,4" />
+    </Style>
+
+    <Style x:Key="IconButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="FontSize" Value="22" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="44" />
+    </Style>
+
+    <Style x:Key="FavoriteButton" TargetType="ImageButton">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="CornerRadius" Value="22" />
+    </Style>
+
+    <Style x:Key="StepButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray600}}" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}" />
+        <Setter Property="FontSize" Value="18" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="WidthRequest" Value="36" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="MinimumWidthRequest" Value="36" />
+        <Setter Property="MinimumHeightRequest" Value="36" />
+        <Setter Property="CornerRadius" Value="18" />
+    </Style>
+</ResourceDictionary>

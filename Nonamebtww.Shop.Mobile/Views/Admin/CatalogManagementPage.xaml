@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.CatalogManagementPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:CatalogManagementViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Управление каталогом">
+
+    <ContentPage.ToolbarItems>
+        <ToolbarItem Text="Добавить" Command="{Binding AddCommand}" />
+    </ContentPage.ToolbarItems>
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+            <Button Text="Товары" Command="{Binding ShowProductsCommand}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsProductsTab}" Value="False">
+                        <Setter Property="Style" Value="{StaticResource SecondaryButton}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Grid.Column="1" Text="Категории" Command="{Binding ShowCategoriesCommand}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsProductsTab}" Value="True">
+                        <Setter Property="Style" Value="{StaticResource SecondaryButton}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+        </Grid>
+
+        <SearchBar Grid.Row="1" Placeholder="Название или артикул" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
+                   IsVisible="{Binding IsProductsTab}" />
+
+        <!-- Products -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Products}" IsVisible="{Binding IsProductsTab}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:ManagedProductItem">
+                    <Border Style="{StaticResource Card}">
+                        <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="10">
+                            <Image Source="{Binding Photo}" HeightRequest="56" WidthRequest="56" Aspect="AspectFill" />
+                            <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="0" VerticalOptions="Center">
+                                <Button Text="Остаток" Style="{StaticResource TextButton}"
+                                        Command="{Binding ChangeStockCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogManagementViewModel}}, x:DataType=vm:CatalogManagementViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="{Binding ToggleText}" Style="{StaticResource TextButton}"
+                                        Command="{Binding ToggleActiveCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogManagementViewModel}}, x:DataType=vm:CatalogManagementViewModel}"
+                                        CommandParameter="{Binding .}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding EditProductCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogManagementViewModel}}, x:DataType=vm:CatalogManagementViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Categories -->
+        <CollectionView Grid.Row="2" ItemsSource="{Binding Categories}" IsVisible="{Binding IsProductsTab, Converter={StaticResource InvertedBool}}">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:CategoryRow">
+                    <Border Style="{StaticResource Card}" Margin="{Binding Indent}">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" />
+                            <Label Grid.Column="1" Text="{Binding CountText}" Style="{StaticResource CaptionLabel}" />
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding EditCategoryCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogManagementViewModel}}, x:DataType=vm:CatalogManagementViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</views:ContentPageBase>

@@ -1,11 +1,34 @@
-﻿using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging;
+using Nonamebtww.Shop.Application;
+using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Common;
+using Nonamebtww.Shop.Infrastructure;
+using Nonamebtww.Shop.Mobile.Services.Dialogs;
+using Nonamebtww.Shop.Mobile.Services.Navigation;
+using Nonamebtww.Shop.Mobile.Services.Notifications;
+using Nonamebtww.Shop.Mobile.Services.Platform;
+using Nonamebtww.Shop.Mobile.ViewModels;
+using Nonamebtww.Shop.Mobile.ViewModels.Admin;
+using Nonamebtww.Shop.Mobile.ViewModels.Auth;
+using Nonamebtww.Shop.Mobile.ViewModels.Cart;
+using Nonamebtww.Shop.Mobile.ViewModels.Catalog;
+using Nonamebtww.Shop.Mobile.ViewModels.Favorites;
+using Nonamebtww.Shop.Mobile.ViewModels.Orders;
+using Nonamebtww.Shop.Mobile.ViewModels.Profile;
+using Nonamebtww.Shop.Mobile.Views;
+using Nonamebtww.Shop.Mobile.Views.Admin;
+using Nonamebtww.Shop.Mobile.Views.Auth;
+using Nonamebtww.Shop.Mobile.Views.Cart;
+using Nonamebtww.Shop.Mobile.Views.Catalog;
+using Nonamebtww.Shop.Mobile.Views.Favorites;
+using Nonamebtww.Shop.Mobile.Views.Orders;
+using Nonamebtww.Shop.Mobile.Views.Profile;
 
-namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
 public static class MauiProgram {
   public static MauiApp CreateMauiApp() {
     var builder = MauiApp.CreateBuilder();
-    
+
     builder
       .UseMauiApp<App>()
       .ConfigureFonts(fonts => {
@@ -17,6 +40,57 @@ public static class MauiProgram {
     builder.Logging.AddDebug();
 #endif
 
-    return builder.Build();
+    FormHandlers.Configure();
+
+    // Platform overrides must be registered before AddInfrastructure (it uses TryAdd).
+    builder.Services.AddSingleton<IDeviceInfoProvider, MauiDeviceInfoProvider>();
+
+    // Layers: use cases (Application) and local storage / fake external services (Infrastructure).
+    // No network: UseRemoteApi stays false until a backend exists.
+    builder.Services.AddApplication();
+    builder.Services.AddInfrastructure(options => {
+      options.DatabasePath = Path.Combine(FileSystem.AppDataDirectory, "shop.db3");
+      options.UseRemoteApi = false;
+    });
+
+    builder.Services
+      .AddSingleton<INavigationService, ShellNavigationService>()
+      .AddSingleton<IDialogService, DialogService>()
+      .AddSingleton<NotificationPresenter>();
+
+    builder.Services
+      .AddScreen<StartupPage, StartupViewModel>()
+      .AddScreen<LoginPage, LoginViewModel>()
+      .AddScreen<RegisterPage, RegisterViewModel>()
+      .AddScreen<ForgotPasswordPage, ForgotPasswordViewModel>()
+      .AddScreen<CatalogPage, CatalogViewModel>()
+      .AddScreen<ProductPage, ProductViewModel>()
+      .AddScreen<FavoritesPage, FavoritesViewModel>()
+      .AddScreen<CartPage, CartViewModel>()
+      .AddScreen<CheckoutPage, CheckoutViewModel>()
+      .AddScreen<OrdersPage, OrdersViewModel>()
+      .AddScreen<OrderDetailsPage, OrderDetailsViewModel>()
+      .AddScreen<ProfilePage, ProfileViewModel>()
+      .AddScreen<ChangePasswordPage, ChangePasswordViewModel>()
+      .AddScreen<AdminHubPage, AdminHubViewModel>()
+      .AddScreen<CatalogManagementPage, CatalogManagementViewModel>()
+      .AddScreen<ProductEditPage, ProductEditViewModel>()
+      .AddScreen<CategoryEditPage, CategoryEditViewModel>()
+      .AddScreen<UsersPage, UsersViewModel>()
+      .AddScreen<UserDetailsPage, UserDetailsViewModel>()
+      .AddScreen<DeliveryDistributionPage, DeliveryDistributionViewModel>()
+      .AddScreen<CourierTasksPage, CourierTasksViewModel>();
+
+    var app = builder.Build();
+    app.Services.GetRequiredService<NotificationPresenter>().Start();
+    return app;
+  }
+
+  private static IServiceCollection AddScreen<TPage, TViewModel>(this IServiceCollection services)
+    where TPage : Page
+    where TViewModel : class {
+    services.AddTransient<TPage>();
+    services.AddTransient<TViewModel>();
+    return services;
   }
 }

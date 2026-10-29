@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Admin.DeliveryDistributionPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:DeliveryDistributionViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Распределение доставки">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <CollectionView ItemsSource="{Binding Orders}" Margin="12,8">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.Header>
+                <Label Text="{Binding CouriersText}" Style="{StaticResource CaptionLabel}" Margin="0,0,0,8" />
+            </CollectionView.Header>
+            <CollectionView.EmptyView>
+                <Label Text="Нет заказов к доставке" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" Margin="0,48" />
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:DispatchItem">
+                    <Border Style="{StaticResource Card}">
+                        <VerticalStackLayout Spacing="4">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Text="{Binding Number}" Style="{StaticResource BodyLabel}" FontFamily="OpenSansSemibold" />
+                                <Border Grid.Column="1" BackgroundColor="{Binding StatusColor}" StrokeThickness="0" StrokeShape="RoundRectangle 10">
+                                    <Label Text="{Binding StatusText}" Style="{StaticResource BadgeLabel}" />
+                                </Border>
+                            </Grid>
+                            <Label Text="{Binding Customer}" Style="{StaticResource BodyLabel}" />
+                            <Label Text="{Binding Address}" Style="{StaticResource CaptionLabel}" />
+                            <Label Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
+                            <Label Text="{Binding CourierText}" Style="{StaticResource CaptionLabel}" />
+                            <Button Text="{Binding AssignText}" Style="{StaticResource SecondaryButton}" Margin="0,4,0,0"
+                                    Command="{Binding AssignCommand, Source={RelativeSource AncestorType={x:Type vm:DeliveryDistributionViewModel}}, x:DataType=vm:DeliveryDistributionViewModel}"
+                                    CommandParameter="{Binding .}" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+</views:ContentPageBase>

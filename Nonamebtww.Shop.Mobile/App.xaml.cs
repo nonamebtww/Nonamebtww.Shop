@@ -1,11 +1,9 @@
-﻿namespace Nonamebtww.Shop;
+namespace Nonamebtww.Shop.Mobile;
 
-public partial class App : Application {
+public partial class App : Microsoft.Maui.Controls.Application {
   public App() {
     InitializeComponent();
   }
 
-  protected override Window CreateWindow(IActivationState? activationState) {
-    return new Window(new AppShell());
-  }
+  protected override Window CreateWindow(IActivationState? activationState) => new(new AppShell());
 }

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Favorites.FavoritesPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Favorites"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:FavoritesViewModel"
+    Shell.TabBarIsVisible="True"
+    Title="Избранное">
+
+    <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <CollectionView ItemsSource="{Binding Items}" Margin="12,8">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="24,64" Spacing="8" HorizontalOptions="Center">
+                    <Label Text="В избранном пусто" Style="{StaticResource SectionLabel}" HorizontalTextAlignment="Center" />
+                    <Label Text="Отмечайте товары сердечком в каталоге" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+            <CollectionView.ItemTemplate>
+                <DataTemplate x:DataType="items:ProductCardItem">
+                    <Border Style="{StaticResource Card}">
+                        <Grid ColumnDefinitions="80,*,Auto" ColumnSpacing="12">
+                            <Image Source="{Binding Photo}" HeightRequest="80" WidthRequest="80" Aspect="AspectFill" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                                <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
+                                <Label Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" />
+                                <Label Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" />
+                            </VerticalStackLayout>
+                            <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
+                                <ImageButton Source="heart_filled.png" Style="{StaticResource FavoriteButton}"
+                                        Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritesViewModel}}, x:DataType=vm:FavoritesViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                <ImageButton Source="tab_cart.png" Style="{StaticResource FavoriteButton}" IsEnabled="{Binding InStock}"
+                                        Command="{Binding AddToCartCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritesViewModel}}, x:DataType=vm:FavoritesViewModel}"
+                                        CommandParameter="{Binding .}" />
+                            </VerticalStackLayout>
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer
+                                Command="{Binding OpenProductCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritesViewModel}}, x:DataType=vm:FavoritesViewModel}"
+                                CommandParameter="{Binding .}" />
+                        </Border.GestureRecognizers>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.Footer>
+                <BoxView HeightRequest="96" Color="Transparent" BackgroundColor="Transparent" />
+            </CollectionView.Footer>
+        </CollectionView>
+    </RefreshView>
+</views:ContentPageBase>

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Orders.OrdersPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Orders"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    x:DataType="vm:OrdersViewModel"
+    Shell.TabBarIsVisible="True"
+    Title="Мои заказы">
+
+    <Grid RowDefinitions="Auto,*" Padding="12,8,12,0" RowSpacing="8">
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
+            <Button Text="Активные" Command="{Binding ShowActiveCommand}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsActiveTab}" Value="False">
+                        <Setter Property="Style" Value="{StaticResource SecondaryButton}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+            <Button Grid.Column="1" Text="Завершённые" Command="{Binding ShowCompletedCommand}">
+                <Button.Triggers>
+                    <DataTrigger TargetType="Button" Binding="{Binding IsActiveTab}" Value="True">
+                        <Setter Property="Style" Value="{StaticResource SecondaryButton}" />
+                    </DataTrigger>
+                </Button.Triggers>
+            </Button>
+        </Grid>
+
+        <RefreshView Grid.Row="1" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+            <CollectionView ItemsSource="{Binding Orders}">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="24,64" Spacing="8" HorizontalOptions="Center">
+                        <Label Text="Заказов нет" Style="{StaticResource SectionLabel}" HorizontalTextAlignment="Center" />
+                        <Label Text="{Binding EmptyHint}" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate x:DataType="items:OrderListItem">
+                        <Border Style="{StaticResource Card}">
+                            <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" RowSpacing="4">
+                                <Label Text="{Binding Number}" Style="{StaticResource BodyLabel}" FontFamily="OpenSansSemibold" />
+                                <Border Grid.Column="1" BackgroundColor="{Binding StatusColor}" StrokeThickness="0" StrokeShape="RoundRectangle 10">
+                                    <Label Text="{Binding StatusText}" Style="{StaticResource BadgeLabel}" />
+                                </Border>
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
+                                <Label Grid.Row="2" Text="{Binding Date}" Style="{StaticResource CaptionLabel}" />
+                                <Label Grid.Row="2" Grid.Column="1" Text="{Binding TotalText}" Style="{StaticResource PriceLabel}" />
+                            </Grid>
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding OpenCommand, Source={RelativeSource AncestorType={x:Type vm:OrdersViewModel}}, x:DataType=vm:OrdersViewModel}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+                <CollectionView.Footer>
+                    <BoxView HeightRequest="96" Color="Transparent" BackgroundColor="Transparent" />
+                </CollectionView.Footer>
+            </CollectionView>
+        </RefreshView>
+    </Grid>
+</views:ContentPageBase>
