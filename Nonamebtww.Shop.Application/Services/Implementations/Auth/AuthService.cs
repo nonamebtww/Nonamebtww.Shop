@@ -150,22 +150,20 @@ public sealed class AuthService(
       var user = await users.GetByIdAsync(session.UserId, ct);
       var deviceRecord = user?.Devices.FirstOrDefault(d => d.Id == session.DeviceId);
 
-      var isValid = user is { IsBlocked: false, IsConfirmed: true }
-        && deviceRecord is { IsActive: true }
-        && deviceRecord.RefreshToken == session.Tokens.RefreshToken;
-
-      if (!isValid) {
+      if (user is not { IsBlocked: false, IsConfirmed: true }
+          || deviceRecord is not { IsActive: true }
+          || deviceRecord.RefreshToken != session.Tokens.RefreshToken) {
         await sessions.ClearAsync(ct);
         currentUser.SignOut();
         return Result.Success<CurrentUserDto?>(null);
       }
 
-      var dto = user!.ToCurrentUser();
+      var dto = user.ToCurrentUser();
 
       if (tokens.ValidateAccessToken(session.Tokens.AccessToken) is null) {
         // Access-токен истёк: обновляем пару по refresh-токену устройства.
         var refreshed = tokens.Issue(user.Id, user.Role);
-        user.RecordSignIn(deviceRecord!.Name, device.IpAddress, refreshed.RefreshToken, clock.UtcNow);
+        user.RecordSignIn(deviceRecord.Name, device.IpAddress, refreshed.RefreshToken, clock.UtcNow);
         await users.UpdateAsync(user, ct);
         await unitOfWork.SaveChangesAsync(ct);
         await sessions.SaveAsync(session with { Tokens = refreshed }, ct);
