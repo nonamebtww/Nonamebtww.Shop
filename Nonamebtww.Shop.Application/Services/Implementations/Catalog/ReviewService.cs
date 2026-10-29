@@ -52,16 +52,10 @@ public sealed class ReviewService(
         return Errors.NotFound("product");
       }
 
-      var rating = new Rating(request.Rating);
-      var review = await reviews.GetByUserAndProductAsync(userId.Value, request.ProductId, ct);
-
-      if (review is null) {
-        review = Review.Create(userId.Value, request.ProductId, rating, request.Text, clock.UtcNow);
-        await reviews.AddAsync(review, ct);
-      } else {
-        review.Edit(rating, request.Text, clock.UtcNow);
-        await reviews.UpdateAsync(review, ct);
-      }
+      // Каждый отправленный отзыв — новая запись: покупатель может оставить несколько отзывов
+      // (например, после покупки и через месяц), ранее написанные не перезаписываются.
+      var review = Review.Create(userId.Value, request.ProductId, new Rating(request.Rating), request.Text, clock.UtcNow);
+      await reviews.AddAsync(review, ct);
 
       await unitOfWork.SaveChangesAsync(ct);
       return review.ToDto(CurrentUser.User?.FullName ?? "Покупатель");

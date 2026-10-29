@@ -105,6 +105,46 @@
         <Setter Property="CornerRadius" Value="22" />
     </Style>
 
+    <!-- Heart over a product photo: white disc keeps the black HeroIcon readable on any photo and in dark mode. -->
+    <Style x:Key="PhotoBadgeButton" TargetType="ImageButton">
+        <Setter Property="BackgroundColor" Value="#E6FFFFFF" />
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="WidthRequest" Value="36" />
+        <Setter Property="HeightRequest" Value="36" />
+        <Setter Property="MinimumWidthRequest" Value="36" />
+        <Setter Property="MinimumHeightRequest" Value="36" />
+        <Setter Property="CornerRadius" Value="18" />
+        <Setter Property="Margin" Value="4" />
+    </Style>
+
+    <!-- Icon-only button in a title bar or a row (44 pt hit area, HIG minimum). -->
+    <Style x:Key="BarIconButton" TargetType="ImageButton">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="Padding" Value="10" />
+        <Setter Property="WidthRequest" Value="44" />
+        <Setter Property="HeightRequest" Value="44" />
+        <Setter Property="CornerRadius" Value="22" />
+    </Style>
+
+    <!-- Grouped list row (iOS Settings-like): icon, title, chevron. -->
+    <Style x:Key="MenuRow" TargetType="Grid">
+        <Setter Property="Padding" Value="14,0" />
+        <Setter Property="MinimumHeightRequest" Value="50" />
+        <Setter Property="ColumnSpacing" Value="12" />
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource White}, Dark={StaticResource CardDark}}" />
+    </Style>
+
+    <!-- «Подпись: значение» line of an info card. -->
+    <Style x:Key="InfoLabel" TargetType="Label">
+        <Setter Property="FontSize" Value="15" />
+        <Setter Property="LineBreakMode" Value="WordWrap" />
+        <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Gray900}, Dark={StaticResource Gray100}}" />
+    </Style>
+
+    <Style x:Key="SkeletonOverlay" TargetType="ContentView">
+        <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource PageLight}, Dark={StaticResource OffBlack}}" />
+    </Style>
+
     <Style x:Key="StepButton" TargetType="Button">
         <Setter Property="BackgroundColor" Value="{AppThemeBinding Light={StaticResource Secondary}, Dark={StaticResource Gray600}}" />
         <Setter Property="TextColor" Value="{AppThemeBinding Light={StaticResource Tertiary}, Dark={StaticResource White}}" />

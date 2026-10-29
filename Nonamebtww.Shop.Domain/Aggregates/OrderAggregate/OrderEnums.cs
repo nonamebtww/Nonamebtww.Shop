@@ -1,12 +1,26 @@
 namespace Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 
-/// <summary>Тип доставки. Все заказы доставляются курьером.</summary>
+/// <summary>
+/// Тип доставки. Курьер везёт заказ либо покупателю (Standard, Express),
+/// либо в пункт выдачи / постамат (Pickup, ParcelLocker), откуда покупатель забирает его сам.
+/// </summary>
 public enum DeliveryType {
   /// <summary>Обычная курьерская доставка.</summary>
   Standard = 0,
 
   /// <summary>Срочная курьерская доставка.</summary>
   Express = 1,
+
+  /// <summary>Самовывоз из пункта выдачи магазина.</summary>
+  Pickup = 2,
+
+  /// <summary>Доставка в постамат.</summary>
+  ParcelLocker = 3,
+}
+
+public static class DeliveryTypeExtensions {
+  /// <summary>Заказ везут на адрес покупателя (а не в пункт выдачи или постамат).</summary>
+  public static bool IsToDoor(this DeliveryType type) => type is DeliveryType.Standard or DeliveryType.Express;
 }
 
 /// <summary>Способ (тип) оплаты. Оплата онлайн до подтверждения заказа.</summary>

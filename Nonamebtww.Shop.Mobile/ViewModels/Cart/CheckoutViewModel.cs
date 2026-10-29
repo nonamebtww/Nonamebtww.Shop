@@ -1,73 +1,120 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using System.Collections.ObjectModel;
+using System.Reactive.Linq;
 using Nonamebtww.Shop.Application.Models.DTOs.Orders;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Cart;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Orders;
 using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
+using Nonamebtww.Shop.Mobile.Converters;
 using Nonamebtww.Shop.Mobile.Presentation;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.ViewModels.Base;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 
 namespace Nonamebtww.Shop.Mobile.ViewModels.Cart;
 
+/// <summary>Delivery option of the checkout form.</summary>
+public sealed record DeliveryOption(DeliveryType Type, string Caption, string Hint, string Icon);
+
 /// <summary>
-/// Use case «Оформить заказ»: delivery type and address (15.2), payment method (15.3),
-/// confirmation (order goes to «Ожидает оплаты») and online payment (15.4).
+/// Use case «Оформить заказ»: delivery type — courier (standard / express), pickup or parcel locker —
+/// and address or point (15.2), payment method (15.3), confirmation («Ожидает оплаты») and online payment (15.4).
 /// </summary>
-public sealed partial class CheckoutViewModel(
-  ICartService cart,
-  IOrderService orders,
-  INavigationService navigation,
-  IDialogService dialogs) : ViewModelBase(navigation, dialogs) {
+public sealed partial class CheckoutViewModel : ViewModelBase {
+  private readonly ICartService _cart;
+  private readonly IOrderService _orders;
+  private readonly RemoteDataCache _cache;
+  private readonly ObservableAsPropertyHelper<bool> _isToDoor;
+  private readonly ObservableAsPropertyHelper<string> _pointsTitle;
   private Guid _orderId;
 
-  [ObservableProperty]
-  public partial string SummaryText { get; set; } = string.Empty;
+  public CheckoutViewModel(
+    ICartService cart,
+    IOrderService orders,
+    RemoteDataCache cache,
+    INavigationService navigation,
+    IDialogService dialogs) : base(navigation, dialogs) {
+    _cart = cart;
+    _orders = orders;
+    _cache = cache;
+    SelectedDelivery = DeliveryOptions[0];
 
-  [ObservableProperty]
-  public partial string TotalText { get; set; } = string.Empty;
+    var type = this.WhenAnyValue(x => x.SelectedDelivery).Select(x => x?.Type ?? DeliveryType.Standard);
+    _isToDoor = type.Select(x => x.IsToDoor()).ToProperty(this, x => x.IsToDoor, initialValue: true);
+    _pointsTitle = type.Select(x => x == DeliveryType.ParcelLocker ? "Постамат" : "Пункт самовывоза")
+      .ToProperty(this, x => x.PointsTitle, initialValue: string.Empty);
 
-  [ObservableProperty]
-  [NotifyPropertyChangedFor(nameof(IsExpressDelivery))]
-  public partial bool IsStandardDelivery { get; set; } = true;
-
-  public bool IsExpressDelivery {
-    get => !IsStandardDelivery;
-    set => IsStandardDelivery = !value;
+    // Pickup / parcel locker: load the list of points for the chosen type.
+    type.DistinctUntilChanged()
+      .Where(x => !x.IsToDoor())
+      .Subscribe(x => _ = LoadPointsAsync(x));
   }
 
-  [ObservableProperty]
-  [NotifyPropertyChangedFor(nameof(IsSbp), nameof(PayButtonText))]
-  public partial bool IsCard { get; set; } = true;
+  public IReadOnlyList<DeliveryOption> DeliveryOptions { get; } = [
+    new(DeliveryType.Standard, "Курьером", "1–3 дня, до двери", Icons.Themed("hero_truck")),
+    new(DeliveryType.Express, "Срочно курьером", "Сегодня или завтра", Icons.Themed("hero_truck")),
+    new(DeliveryType.Pickup, "Самовывоз", "Из магазина или пункта выдачи", Icons.Themed("hero_building_storefront")),
+    new(DeliveryType.ParcelLocker, "Постамат", "Круглосуточно, по коду из SMS", Icons.Themed("hero_archive_box"))
+  ];
+
+  public ObservableCollection<DeliveryPointDto> Points { get; } = [];
+
+  [Reactive]
+  public partial DeliveryOption? SelectedDelivery { get; set; }
+
+  [Reactive]
+  public partial DeliveryPointDto? SelectedPoint { get; set; }
+
+  public bool IsToDoor => _isToDoor.Value;
+
+  public string PointsTitle => _pointsTitle.Value;
+
+  [Reactive]
+  public partial string SummaryText { get; set; } = string.Empty;
+
+  [Reactive]
+  public partial string TotalText { get; set; } = string.Empty;
+
+  private bool _isCard = true;
+
+  public bool IsCard {
+    get => _isCard;
+    set {
+      this.RaiseAndSetIfChanged(ref _isCard, value);
+      this.RaisePropertyChanged(nameof(IsSbp));
+      this.RaisePropertyChanged(nameof(PayButtonText));
+    }
+  }
 
   public bool IsSbp {
     get => !IsCard;
     set => IsCard = !value;
   }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string City { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Street { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string House { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Apartment { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string PostalCode { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Comment { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsPaymentStep { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string OrderText { get; set; } = string.Empty;
 
   public string PayButtonText => IsCard ? "Оплатить картой" : "Оплатить через СБП";
@@ -77,7 +124,7 @@ public sealed partial class CheckoutViewModel(
       return;
     }
 
-    var dto = await ExecuteAsync(() => cart.GetAsync());
+    var dto = await ExecuteAsync(() => _cart.GetAsync());
     if (dto is null) {
       return;
     }
@@ -92,26 +139,29 @@ public sealed partial class CheckoutViewModel(
     TotalText = DisplayText.Money(dto.TotalAmount);
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
+  private void SelectDelivery(DeliveryOption option) => SelectedDelivery = option;
+
+  [ReactiveCommand]
   private async Task PlaceOrderAsync() {
-    var address = new AddressDto(
-      City.Trim(),
-      Street.Trim(),
-      House.Trim(),
-      NullIfEmpty(Apartment),
-      NullIfEmpty(PostalCode),
-      NullIfEmpty(Comment));
+    var type = SelectedDelivery?.Type ?? DeliveryType.Standard;
+    if (!type.IsToDoor() && SelectedPoint is null) {
+      await Dialogs.AlertAsync("Доставка", type == DeliveryType.Pickup ? "Выберите пункт самовывоза." : "Выберите постамат.");
+      return;
+    }
 
-    var request = new CheckoutRequest(
-      IsStandardDelivery ? DeliveryType.Standard : DeliveryType.Express,
-      address,
-      IsCard ? PaymentMethod.Card : PaymentMethod.Sbp);
+    var address = type.IsToDoor()
+      ? new AddressDto(City.Trim(), Street.Trim(), House.Trim(), NullIfEmpty(Apartment), NullIfEmpty(PostalCode), NullIfEmpty(Comment))
+      : SelectedPoint!.Address;
 
-    var order = await ExecuteAsync(() => orders.CheckoutAsync(request));
+    var request = new CheckoutRequest(type, address, IsCard ? PaymentMethod.Card : PaymentMethod.Sbp, SelectedPoint?.Id);
+
+    var order = await ExecuteAsync(() => _orders.CheckoutAsync(request));
     if (order is null) {
       return;
     }
 
+    _cache.Invalidate();
     _orderId = order.Id;
     TotalText = DisplayText.Money(order.TotalAmount);
     OrderText = $"Заказ {DisplayText.ShortId(order.Id)} создан и ожидает оплаты."
@@ -119,24 +169,40 @@ public sealed partial class CheckoutViewModel(
     IsPaymentStep = true;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task PayAsync() {
-    var order = await ExecuteAsync(() => orders.PayAsync(_orderId));
+    var order = await ExecuteAsync(() => _orders.PayAsync(_orderId));
     if (order is null) {
       return;
     }
 
+    _cache.Invalidate();
     if (order.Status == OrderStatus.AwaitingPayment) {
       await Dialogs.AlertAsync("Оплата", "Платёж отклонён платёжной системой. Попробуйте ещё раз.");
       return;
     }
 
-    await Dialogs.AlertAsync("Заказ подтверждён", "Оплата прошла. Мы сообщим, когда заказ передадут курьеру.");
+    var next = SelectedDelivery?.Type switch {
+      DeliveryType.Pickup => "Мы сообщим, когда заказ будет готов к выдаче.",
+      DeliveryType.ParcelLocker => "Код для постамата придёт, когда заказ доставят.",
+      _ => "Мы сообщим, когда заказ передадут курьеру."
+    };
+    await Dialogs.AlertAsync("Заказ подтверждён", $"Оплата прошла. {next}");
     await OpenOrderAsync();
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private Task PayLaterAsync() => OpenOrderAsync();
+
+  private async Task LoadPointsAsync(DeliveryType type) {
+    var points = await ExecuteAsync(() => _orders.GetDeliveryPointsAsync(type), showBusy: false);
+    Points.Clear();
+    foreach (var point in points ?? []) {
+      Points.Add(point);
+    }
+
+    SelectedPoint = Points.FirstOrDefault();
+  }
 
   private Task OpenOrderAsync() => Navigation.GoToAsync(
     $"//{Routes.Main}/{Routes.Orders}/{Routes.OrderDetails}",

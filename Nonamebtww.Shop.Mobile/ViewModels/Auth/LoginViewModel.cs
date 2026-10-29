@@ -1,8 +1,9 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Auth;
 using Nonamebtww.Shop.Application.Models.Enums;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.ViewModels.Base;
@@ -13,12 +14,12 @@ namespace Nonamebtww.Shop.Mobile.ViewModels.Auth;
 public sealed record DemoAccount(string RoleCaption, string Login, string Password);
 
 /// <summary>Use case «Вход»: login, email or phone + password, or an external provider.</summary>
-public sealed partial class LoginViewModel(IAuthService auth, INavigationService navigation, IDialogService dialogs)
+public sealed partial class LoginViewModel(IAuthService auth, RemoteDataCache cache, INavigationService navigation, IDialogService dialogs)
   : ViewModelBase(navigation, dialogs) {
-  [ObservableProperty]
+  [Reactive]
   public partial string Identifier { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Password { get; set; } = string.Empty;
 
   public IReadOnlyList<DemoAccount> DemoAccounts { get; } = [
@@ -29,7 +30,7 @@ public sealed partial class LoginViewModel(IAuthService auth, INavigationService
     new("Курьер", "courier", "Courier123!")
   ];
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task LoginAsync() {
     await RunAsync(async () => {
       var result = await auth.LoginAsync(new LoginRequest(Identifier.Trim(), Password));
@@ -51,7 +52,7 @@ public sealed partial class LoginViewModel(IAuthService auth, INavigationService
     });
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task ExternalLoginAsync(ExternalAuthProvider provider) {
     var result = await ExecuteAsync(() => auth.ExternalLoginAsync(new ExternalLoginRequest(provider)));
     if (result is not null) {
@@ -59,20 +60,22 @@ public sealed partial class LoginViewModel(IAuthService auth, INavigationService
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private void FillDemo(DemoAccount account) {
     Identifier = account.Login;
     Password = account.Password;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private Task RegisterAsync() => Navigation.GoToAsync(Routes.Register);
 
-  [RelayCommand]
+  [ReactiveCommand]
   private Task ForgotPasswordAsync() => Navigation.GoToAsync(Routes.ForgotPassword);
 
   private async Task OnSignedInAsync(CurrentUserDto user) {
     Password = string.Empty;
+    // Cached screens belong to the previous account.
+    cache.Invalidate();
     await Navigation.GoHomeAsync(user);
   }
 }

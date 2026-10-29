@@ -65,7 +65,11 @@ public sealed class OrderService(
       var now = clock.UtcNow;
       // 15.1 создать заказ из корзины → 15.2 доставка и адрес → 15.3 способ оплаты → «Ожидает оплаты».
       var order = Order.CreateFromCart(cart, id => byId[id].Price, now);
-      order.SetDelivery(request.DeliveryType, request.Address.ToDomain());
+      // Самовывоз и постамат: адрес — адрес выбранного пункта, а не введённый покупателем.
+      var address = request.DeliveryType.IsToDoor()
+        ? request.Address!
+        : DeliveryPoints.Find(request.DeliveryPointId, request.DeliveryType)!.Address;
+      order.SetDelivery(request.DeliveryType, address.ToDomain());
       order.SetPaymentMethod(request.PaymentMethod);
       order.Submit(now);
 
@@ -83,6 +87,9 @@ public sealed class OrderService(
 
       return order.ToDetails(byId, null);
     });
+
+  public Task<Result<IReadOnlyList<DeliveryPointDto>>> GetDeliveryPointsAsync(DeliveryType type, CancellationToken ct = default) =>
+    Task.FromResult(Result.Success(DeliveryPoints.Of(type)));
 
   public Task<Result<OrderDetailsDto>> PayAsync(Guid orderId, CancellationToken ct = default) =>
     Run<OrderDetailsDto>(async () => {

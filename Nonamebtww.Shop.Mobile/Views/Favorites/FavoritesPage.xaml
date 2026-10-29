@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Favorites.FavoritesPage"
+    x:TypeArguments="vm:FavoritesViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Favorites"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:FavoritesViewModel"
     Shell.TabBarIsVisible="True"
     Title="Избранное">
@@ -25,17 +27,22 @@
                 <DataTemplate x:DataType="items:ProductCardItem">
                     <Border Style="{StaticResource Card}">
                         <Grid ColumnDefinitions="80,*,Auto" ColumnSpacing="12">
-                            <Image Source="{Binding Photo}" HeightRequest="80" WidthRequest="80" Aspect="AspectFill" />
+                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="White" HeightRequest="80" WidthRequest="80">
+                                <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" DownsampleToViewSize="True"
+                                                LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png" />
+                            </Border>
                             <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
                                 <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" />
                                 <Label Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" />
                             </VerticalStackLayout>
                             <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
-                                <ImageButton Source="heart_filled.png" Style="{StaticResource FavoriteButton}"
+                                <ImageButton Source="{AppThemeBinding Light=hero_heart_solid.png, Dark=hero_heart_solid_dark.png}" Style="{StaticResource BarIconButton}"
+                                        SemanticProperties.Description="Убрать из избранного"
                                         Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritesViewModel}}, x:DataType=vm:FavoritesViewModel}"
                                         CommandParameter="{Binding .}" />
-                                <ImageButton Source="tab_cart.png" Style="{StaticResource FavoriteButton}" IsEnabled="{Binding InStock}"
+                                <ImageButton Source="{AppThemeBinding Light=hero_shopping_cart.png, Dark=hero_shopping_cart_dark.png}" Style="{StaticResource BarIconButton}"
+                                        SemanticProperties.Description="В корзину" IsEnabled="{Binding InStock}"
                                         Command="{Binding AddToCartCommand, Source={RelativeSource AncestorType={x:Type vm:FavoritesViewModel}}, x:DataType=vm:FavoritesViewModel}"
                                         CommandParameter="{Binding .}" />
                             </VerticalStackLayout>

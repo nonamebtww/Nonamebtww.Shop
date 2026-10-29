@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Orders.OrdersPage"
+    x:TypeArguments="vm:OrdersViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Orders"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:controls="clr-namespace:Nonamebtww.Shop.Mobile.Controls"
     x:DataType="vm:OrdersViewModel"
     Shell.TabBarIsVisible="True"
     Title="Мои заказы">
@@ -64,5 +66,7 @@
                 </CollectionView.Footer>
             </CollectionView>
         </RefreshView>
+
+        <controls:ListSkeleton Grid.Row="1" Rows="5" Style="{StaticResource SkeletonOverlay}" IsVisible="{Binding IsLoading}" />
     </Grid>
 </views:ContentPageBase>

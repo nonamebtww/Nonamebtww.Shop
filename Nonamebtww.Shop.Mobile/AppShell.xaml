@@ -24,19 +24,19 @@
         ContentTemplate="{DataTemplate auth:LoginPage}" />
 
     <TabBar Route="main">
-        <Tab Title="Каталог" Icon="tab_catalog.png" Route="catalog">
+        <Tab Title="Каталог" Icon="hero_squares_2x2.png" Route="catalog">
             <ShellContent ContentTemplate="{DataTemplate catalog:CatalogPage}" />
         </Tab>
-        <Tab Title="Избранное" Icon="tab_favorites.png" Route="favorites">
+        <Tab Title="Избранное" Icon="hero_heart.png" Route="favorites">
             <ShellContent ContentTemplate="{DataTemplate favorites:FavoritesPage}" />
         </Tab>
-        <Tab Title="Корзина" Icon="tab_cart.png" Route="cart">
+        <Tab Title="Корзина" Icon="hero_shopping_cart.png" Route="cart">
             <ShellContent ContentTemplate="{DataTemplate cart:CartPage}" />
         </Tab>
-        <Tab Title="Заказы" Icon="tab_orders.png" Route="orders">
+        <Tab Title="Заказы" Icon="hero_clipboard_document_list.png" Route="orders">
             <ShellContent ContentTemplate="{DataTemplate orders:OrdersPage}" />
         </Tab>
-        <Tab Title="Профиль" Icon="tab_profile.png" Route="profile">
+        <Tab Title="Профиль" Icon="hero_user.png" Route="profile">
             <ShellContent ContentTemplate="{DataTemplate profile:ProfilePage}" />
         </Tab>
     </TabBar>

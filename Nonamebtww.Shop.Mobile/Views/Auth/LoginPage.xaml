@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Auth.LoginPage"
+    x:TypeArguments="vm:LoginViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
@@ -12,9 +13,25 @@
     <ScrollView>
         <VerticalStackLayout Padding="24,48,24,24" Spacing="14">
             <Label Text="Nonamebtww Shop" Style="{StaticResource TitleLabel}" FontSize="30" />
-            <Label Text="Войдите по логину, почте или номеру телефона" Style="{StaticResource CaptionLabel}" />
+            <Label Text="Войдите через сервис или по логину, почте, номеру телефона" Style="{StaticResource CaptionLabel}" />
 
-            <Border Style="{StaticResource FieldBorder}" Margin="0,16,0,0">
+            <!-- Sign in with services first, then login and password -->
+            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8" Margin="0,16,0,0">
+                <Button Text="Google" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Google}" />
+                <Button Grid.Column="1" Text="Apple ID" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Apple}" />
+                <Button Grid.Column="2" Text="Yandex ID" Style="{StaticResource SecondaryButton}"
+                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Yandex}" />
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto,*" ColumnSpacing="10" Margin="0,4">
+                <BoxView HeightRequest="0.5" VerticalOptions="Center" Color="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+                <Label Grid.Column="1" Text="или по логину и паролю" Style="{StaticResource CaptionLabel}" VerticalOptions="Center" />
+                <BoxView Grid.Column="2" HeightRequest="0.5" VerticalOptions="Center" Color="{AppThemeBinding Light={StaticResource Gray200}, Dark={StaticResource Gray600}}" />
+            </Grid>
+
+            <Border Style="{StaticResource FieldBorder}">
                 <Entry Placeholder="Логин, email или телефон" Text="{Binding Identifier}"
                        Keyboard="Email" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" ReturnType="Next" />
             </Border>
@@ -37,16 +54,6 @@
                         <TapGestureRecognizer Command="{Binding RegisterCommand}" />
                     </Label.GestureRecognizers>
                 </Label>
-            </Grid>
-
-            <Label Text="или войти через" Style="{StaticResource CaptionLabel}" HorizontalTextAlignment="Center" Margin="0,8,0,0" />
-            <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-                <Button Text="Google" Style="{StaticResource SecondaryButton}"
-                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Google}" />
-                <Button Grid.Column="1" Text="Apple ID" Style="{StaticResource SecondaryButton}"
-                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Apple}" />
-                <Button Grid.Column="2" Text="Yandex ID" Style="{StaticResource SecondaryButton}"
-                        Command="{Binding ExternalLoginCommand}" CommandParameter="{x:Static enums:ExternalAuthProvider.Yandex}" />
             </Grid>
 
             <Border Style="{StaticResource Card}" Margin="0,16,0,0">

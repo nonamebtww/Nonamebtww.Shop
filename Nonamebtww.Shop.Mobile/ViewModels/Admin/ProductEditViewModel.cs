@@ -1,11 +1,13 @@
+using System.Reactive.Linq;
 using System.Collections.ObjectModel;
 using System.Globalization;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Catalog.Management;
 using Nonamebtww.Shop.Application.Models.DTOs.Catalog.Product;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Catalog;
 using Nonamebtww.Shop.Mobile.Presentation;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.ViewModels.Base;
@@ -18,6 +20,7 @@ public sealed partial class ProductEditViewModel(
   IProductQueries products,
   ICategoryQueries categories,
   ICatalogManagementService management,
+  RemoteDataCache cache,
   INavigationService navigation,
   IDialogService dialogs) : ViewModelBase(navigation, dialogs), IQueryAttributable {
   private Guid? _productId;
@@ -25,35 +28,36 @@ public sealed partial class ProductEditViewModel(
 
   public ObservableCollection<Option<Guid>> CategoryOptions { get; } = [];
 
-  [ObservableProperty]
+  [Reactive]
   public partial Option<Guid>? SelectedCategory { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Sku { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Name { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Description { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Characteristics { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Price { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Stock { get; set; } = "0";
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsActive { get; set; } = true;
 
-  [ObservableProperty]
-  [NotifyPropertyChangedFor(nameof(PhotoPreview))]
+  [Reactive]
   public partial string? Photo { get; set; }
 
-  public string PhotoPreview => ImageSources.Photo(Photo);
+  private ObservableAsPropertyHelper<string>? _photoPreview;
+
+  public string PhotoPreview => Derived(ref _photoPreview, this.WhenAnyValue(x => x.Photo).Select(ImageSources.Photo));
 
   public void ApplyQueryAttributes(IDictionary<string, object> query) {
     _productId = query.TryGetValue(Routes.Params.Id, out var id) && id is Guid productId ? productId : null;
@@ -85,7 +89,7 @@ public sealed partial class ProductEditViewModel(
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task PickPhotoAsync() {
     try {
       Photo = await PhotoPicker.PickAsync() ?? Photo;
@@ -94,10 +98,10 @@ public sealed partial class ProductEditViewModel(
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private void RemovePhoto() => Photo = null;
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task SaveAsync() {
     if (SelectedCategory is null) {
       await Dialogs.AlertAsync("Товар", "Выберите категорию.");
@@ -124,6 +128,7 @@ public sealed partial class ProductEditViewModel(
 
     var saved = await ExecuteValueAsync(() => management.SaveProductAsync(request));
     if (saved is not null) {
+      cache.Invalidate();
       await Navigation.GoBackAsync();
     }
   }

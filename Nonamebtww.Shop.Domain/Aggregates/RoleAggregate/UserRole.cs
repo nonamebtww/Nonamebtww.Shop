@@ -40,6 +40,9 @@ public static class UserRoleExtensions {
   /// <summary>Может менять права и блокировать пользователей.</summary>
   public static bool CanManageUsers(this UserRole role) => role == UserRole.Owner;
 
-  /// <summary>Может оформлять заказы, вести корзину и избранное, писать отзывы.</summary>
-  public static bool CanShop(this UserRole role) => role == UserRole.Customer;
+  /// <summary>
+  /// Может оформлять заказы, вести корзину и избранное, писать отзывы.
+  /// Все роли: после входа каждый попадает в каталог покупателя, сотрудники тоже могут покупать.
+  /// </summary>
+  public static bool CanShop(this UserRole role) => Enum.IsDefined(role);
 }

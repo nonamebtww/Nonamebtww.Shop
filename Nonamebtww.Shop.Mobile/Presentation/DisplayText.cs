@@ -44,8 +44,24 @@ public static class DisplayText {
   public static string Of(DeliveryType type) => type switch {
     DeliveryType.Standard => "Курьером, обычная",
     DeliveryType.Express => "Курьером, срочная",
+    DeliveryType.Pickup => "Самовывоз",
+    DeliveryType.ParcelLocker => "Постамат",
     _ => type.ToString()
   };
+
+  /// <summary>Russian plural form: 1 отзыв, 2 отзыва, 5 отзывов.</summary>
+  public static string Plural(int count, string one, string few, string many) {
+    var n = Math.Abs(count) % 100;
+    if (n is >= 11 and <= 14) {
+      return many;
+    }
+
+    return (n % 10) switch {
+      1 => one,
+      >= 2 and <= 4 => few,
+      _ => many
+    };
+  }
 
   public static string Of(PaymentMethod method) => method switch {
     PaymentMethod.Card => "Банковская карта",

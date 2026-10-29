@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
 using Nonamebtww.Shop.Domain.Aggregates.RoleAggregate;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
@@ -16,7 +16,7 @@ public sealed partial class AdminHubViewModel(ICurrentUserService currentUser, I
   : ViewModelBase(navigation, dialogs) {
   public ObservableCollection<StaffTile> Tiles { get; } = [];
 
-  [ObservableProperty]
+  [Reactive]
   public partial string RoleText { get; set; } = string.Empty;
 
   public override Task OnAppearingAsync() {
@@ -47,6 +47,6 @@ public sealed partial class AdminHubViewModel(ICurrentUserService currentUser, I
     return Task.CompletedTask;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private Task OpenAsync(StaffTile tile) => Navigation.GoToAsync(tile.Route);
 }

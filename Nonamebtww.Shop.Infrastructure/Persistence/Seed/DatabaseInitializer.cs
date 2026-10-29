@@ -44,13 +44,20 @@ internal sealed class DatabaseInitializer {
 
     await using var db = await _contextFactory.CreateDbContextAsync(ct);
 
-    if (_options.RecreateDatabaseOnStartup) {
+    // Локальная БД прототипа пересоздаётся, если сменилась версия сида/схемы (нет миграций).
+    var versionFile = Path.GetFullPath(_options.DatabasePath) + ".version";
+    var storedVersion = File.Exists(versionFile) ? (await File.ReadAllTextAsync(versionFile, ct)).Trim() : null;
+    var currentVersion = DemoCatalog.Version.ToString();
+
+    if (_options.RecreateDatabaseOnStartup || storedVersion != currentVersion) {
       await db.Database.EnsureDeletedAsync(ct);
+      _logger.LogInformation("БД пересоздаётся: версия {Old} → {New}", storedVersion ?? "нет", currentVersion);
     }
 
     // Прототип без миграций: схема создаётся по модели. При изменении модели
     // включите RecreateDatabaseOnStartup или удалите файл БД.
     await db.Database.EnsureCreatedAsync(ct);
+    await File.WriteAllTextAsync(versionFile, currentVersion, ct);
 
     if (!await db.Roles.AnyAsync(ct)) {
       db.Roles.AddRange(Role.CreateDefaults());
@@ -106,16 +113,25 @@ internal sealed class DatabaseInitializer {
     db.Products.AddRange(products);
 
     var buyer = users.Single(u => u.Role == UserRole.Customer);
-    db.Carts.Add(Cart.CreateFor(buyer.Id));
+    var usersByLogin = users.ToDictionary(u => u.Login.Value, StringComparer.OrdinalIgnoreCase);
+    var productsBySku = products.ToDictionary(p => p.Sku.Value, StringComparer.OrdinalIgnoreCase);
+
+    // Корзина и избранное есть у каждого: сотрудники тоже могут покупать.
+    foreach (var user in users) {
+      db.Carts.Add(Cart.CreateFor(user.Id));
+    }
 
     var favorites = Favorites.CreateFor(buyer.Id);
-    favorites.Add(products[1].Id, now);
-    favorites.Add(products[5].Id, now);
+    favorites.Add(productsBySku["AU-APMAX"].Id, now);
+    favorites.Add(productsBySku["TB-IPMINI"].Id, now);
     db.Favorites.Add(favorites);
 
-    db.Reviews.AddRange(
-      Review.Create(buyer.Id, products[0].Id, new Rating(5), "Отличный смартфон за свои деньги, экран очень яркий.", now.AddDays(-10)),
-      Review.Create(buyer.Id, products[5].Id, new Rating(4), "Хорошее шумоподавление, но кейс немного великоват.", now.AddDays(-3)));
+    db.Reviews.AddRange(DemoCatalog.Reviews.Select(r => Review.Create(
+      usersByLogin[r.Login].Id,
+      productsBySku[r.Sku].Id,
+      new Rating(r.Rating),
+      r.Text,
+      now.AddDays(-r.DaysAgo))));
 
     // Сид не публикует доменные события: это начальное состояние, а не действия пользователей.
     foreach (var aggregate in db.ChangeTracker.Entries()

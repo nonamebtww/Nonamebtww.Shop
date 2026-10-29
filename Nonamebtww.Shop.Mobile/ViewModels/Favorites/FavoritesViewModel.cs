@@ -1,8 +1,9 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Cart;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Favorites;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.ViewModels.Base;
@@ -14,36 +15,39 @@ namespace Nonamebtww.Shop.Mobile.ViewModels.Favorites;
 public sealed partial class FavoritesViewModel(
   IFavoritesService favorites,
   ICartService cart,
+  RemoteDataCache cache,
   INavigationService navigation,
   IDialogService dialogs) : ViewModelBase(navigation, dialogs) {
   public ObservableCollection<ProductCardItem> Items { get; } = [];
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsRefreshing { get; set; }
 
   public override Task OnAppearingAsync() => LoadAsync();
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task RefreshAsync() {
     await LoadAsync();
     IsRefreshing = false;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task RemoveAsync(ProductCardItem item) {
     if (await ExecuteAsync(() => favorites.RemoveAsync(item.Id), showBusy: false)) {
+      cache.Invalidate();
       Items.Remove(item);
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task AddToCartAsync(ProductCardItem item) {
     if (await ExecuteAsync(() => cart.AddAsync(item.Id), showBusy: false) is not null) {
+      cache.Invalidate();
       await Dialogs.AlertAsync("Корзина", $"«{item.Name}» добавлен в корзину.");
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private Task OpenProductAsync(ProductCardItem item) =>
     Navigation.GoToAsync(Routes.Product, new Dictionary<string, object> { [Routes.Params.Id] = item.Id });
 

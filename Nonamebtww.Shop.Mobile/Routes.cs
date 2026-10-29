@@ -21,6 +21,8 @@ public static class Routes {
   public const string Checkout = "checkout";
   public const string OrderDetails = "order";
   public const string ChangePassword = "change-password";
+  public const string PersonalData = "personal-data";
+  public const string Notifications = "notifications";
 
   // Staff
   public const string Admin = "admin";

@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Auth;
 using Nonamebtww.Shop.Application.Models.Enums;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
@@ -17,43 +17,49 @@ public sealed partial class RegisterViewModel(IAuthService auth, INavigationServ
   : ViewModelBase(navigation, dialogs), IQueryAttributable {
   private Guid _pendingUserId;
 
-  [ObservableProperty]
-  [NotifyPropertyChangedFor(nameof(UsePhone))]
-  public partial bool UseEmail { get; set; } = true;
+  private bool _useEmail = true;
+
+  public bool UseEmail {
+    get => _useEmail;
+    set {
+      this.RaiseAndSetIfChanged(ref _useEmail, value);
+      this.RaisePropertyChanged(nameof(UsePhone));
+    }
+  }
 
   public bool UsePhone {
     get => !UseEmail;
     set => UseEmail = !value;
   }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Login { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Email { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Phone { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string FirstName { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string LastName { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Password { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string ConfirmPassword { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsCodeStep { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string CodeHint { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Code { get; set; } = string.Empty;
 
   /// <summary>Opened from the login screen for an unconfirmed account (the new code is already sent by the login use case).</summary>
@@ -65,7 +71,7 @@ public sealed partial class RegisterViewModel(IAuthService auth, INavigationServ
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task ResendCodeAsync() {
     var pending = await ExecuteAsync(() => auth.ResendRegistrationCodeAsync(_pendingUserId));
     if (pending is not null) {
@@ -73,7 +79,7 @@ public sealed partial class RegisterViewModel(IAuthService auth, INavigationServ
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task RegisterAsync() {
     if (Password != ConfirmPassword) {
       await Dialogs.AlertAsync("Регистрация", "Пароли не совпадают.");
@@ -98,7 +104,7 @@ public sealed partial class RegisterViewModel(IAuthService auth, INavigationServ
     IsCodeStep = true;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task ConfirmAsync() {
     var result = await ExecuteAsync(() => auth.ConfirmRegistrationAsync(new ConfirmRegistrationRequest(_pendingUserId, Code.Trim())));
     if (result is not null) {
@@ -106,7 +112,7 @@ public sealed partial class RegisterViewModel(IAuthService auth, INavigationServ
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task ExternalRegisterAsync(ExternalAuthProvider provider) {
     var result = await ExecuteAsync(() => auth.ExternalLoginAsync(new ExternalLoginRequest(provider)));
     if (result is not null) {

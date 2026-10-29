@@ -1,63 +1,84 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Catalog.ProductPage"
+    x:TypeArguments="vm:ProductViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Catalog"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:controls="clr-namespace:Nonamebtww.Shop.Mobile.Controls"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:ProductViewModel"
     Shell.TabBarIsVisible="False"
     Title="{Binding Title}">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Поделиться" Command="{Binding ShareCommand}" />
+        <ToolbarItem IconImageSource="hero_arrow_up_on_square.png" Text="Поделиться" Command="{Binding ShareCommand}"
+                     SemanticProperties.Description="Поделиться" />
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*,Auto">
         <ScrollView>
             <VerticalStackLayout Padding="0,0,0,16" Spacing="12" IsVisible="{Binding IsLoaded}">
                 <!-- Photos -->
-                <CarouselView ItemsSource="{Binding Photos}" HeightRequest="300" IndicatorView="photoIndicator" Loop="False">
+                <CarouselView ItemsSource="{Binding Photos}" HeightRequest="300" IndicatorView="photoIndicator" Loop="False" BackgroundColor="White">
                     <CarouselView.ItemTemplate>
                         <DataTemplate x:DataType="x:String">
-                            <Image Source="{Binding .}" Aspect="AspectFill" />
+                            <ff:CachedImage Source="{Binding .}" Aspect="AspectFit" Margin="16"
+                                            LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png"
+                                            FadeAnimationEnabled="True" />
                         </DataTemplate>
                     </CarouselView.ItemTemplate>
                 </CarouselView>
-                <IndicatorView x:Name="photoIndicator" HorizontalOptions="Center" />
+                <IndicatorView x:Name="photoIndicator" HorizontalOptions="Center" IsVisible="False" />
 
-                <VerticalStackLayout Padding="16,0" Spacing="8">
+                <!-- Title block: category, name, rating close together -->
+                <Grid Padding="16,0" ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="2">
                     <Label Text="{Binding CategoryName}" Style="{StaticResource CaptionLabel}" />
-                    <Grid ColumnDefinitions="*,Auto">
-                        <Label Text="{Binding Name}" Style="{StaticResource TitleLabel}" FontSize="22" />
-                        <ImageButton Grid.Column="1" Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}}"
-                                Style="{StaticResource FavoriteButton}" VerticalOptions="Start" Command="{Binding ToggleFavoriteCommand}" />
-                    </Grid>
-                    <Label Text="{Binding RatingText}" Style="{StaticResource CaptionLabel}" />
-                    <Label Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" FontSize="24" />
+                    <Label Grid.Row="1" Text="{Binding Name}" Style="{StaticResource TitleLabel}" FontSize="22" LineBreakMode="WordWrap" />
+                    <Label Grid.Row="2" Text="{Binding RatingText}" Style="{StaticResource CaptionLabel}" FontSize="13" TextColor="{StaticResource Warning}" />
+                    <ImageButton Grid.RowSpan="3" Grid.Column="1" Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}}"
+                                 Style="{StaticResource BarIconButton}" VerticalOptions="Start" Command="{Binding ToggleFavoriteCommand}"
+                                 SemanticProperties.Description="Избранное" />
+                </Grid>
+
+                <VerticalStackLayout Padding="16,0" Spacing="2">
+                    <Label Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" FontSize="26" />
                     <Label Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" />
                     <Label Text="{Binding SkuText}" Style="{StaticResource CaptionLabel}" />
+                </VerticalStackLayout>
 
+                <VerticalStackLayout Padding="16,0" Spacing="6">
                     <Label Text="Описание" Style="{StaticResource SectionLabel}" />
-                    <Label Text="{Binding Description}" Style="{StaticResource BodyLabel}" />
+                    <Label Text="{Binding Description}" Style="{StaticResource BodyLabel}" FontSize="15" />
+                </VerticalStackLayout>
 
-                    <Label Text="Характеристики" Style="{StaticResource SectionLabel}" IsVisible="{Binding Characteristics, Converter={StaticResource IsNotEmpty}}" />
-                    <VerticalStackLayout BindableLayout.ItemsSource="{Binding Characteristics}" Spacing="6">
-                        <BindableLayout.ItemTemplate>
-                            <DataTemplate x:DataType="items:SpecItem">
-                                <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
-                                    <Label Text="{Binding Name}" Style="{StaticResource CaptionLabel}" />
-                                    <Label Grid.Column="1" Text="{Binding Value}" Style="{StaticResource BodyLabel}" />
-                                </Grid>
-                            </DataTemplate>
-                        </BindableLayout.ItemTemplate>
-                    </VerticalStackLayout>
+                <!-- Characteristics: grouped rows «name … value» -->
+                <VerticalStackLayout Padding="16,0" Spacing="6" IsVisible="{Binding HasCharacteristics}">
+                    <Label Text="Характеристики" Style="{StaticResource SectionLabel}" />
+                    <Border Style="{StaticResource Card}" Padding="0">
+                        <VerticalStackLayout BindableLayout.ItemsSource="{Binding Characteristics}">
+                            <BindableLayout.ItemTemplate>
+                                <DataTemplate x:DataType="items:SpecItem">
+                                    <VerticalStackLayout>
+                                        <Grid ColumnDefinitions="0.45*,0.55*" ColumnSpacing="12" Padding="14,10">
+                                            <Label Text="{Binding Name}" Style="{StaticResource CaptionLabel}" FontSize="14" />
+                                            <Label Grid.Column="1" Text="{Binding Value}" Style="{StaticResource BodyLabel}" HorizontalTextAlignment="End" />
+                                        </Grid>
+                                        <BoxView HeightRequest="0.5" Margin="14,0,0,0" Color="{AppThemeBinding Light={StaticResource Gray100}, Dark={StaticResource Gray600}}" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </BindableLayout.ItemTemplate>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
 
+                <VerticalStackLayout Padding="16,0" Spacing="8">
                     <Label Text="{Binding ReviewsTitle}" Style="{StaticResource SectionLabel}" />
                     <VerticalStackLayout BindableLayout.ItemsSource="{Binding Reviews}" Spacing="8">
                         <BindableLayout.EmptyView>
-                            <Label Text="Отзывов пока нет" Style="{StaticResource CaptionLabel}" />
+                            <Label Text="Отзывов пока нет — станьте первым" Style="{StaticResource CaptionLabel}" />
                         </BindableLayout.EmptyView>
                         <BindableLayout.ItemTemplate>
                             <DataTemplate x:DataType="items:ReviewItem">
@@ -75,16 +96,16 @@
                         </BindableLayout.ItemTemplate>
                     </VerticalStackLayout>
 
-                    <!-- New review -->
+                    <!-- New review: every submission adds a new review -->
                     <Border Style="{StaticResource Card}" IsVisible="{Binding CanReview}">
                         <VerticalStackLayout Spacing="8">
                             <Label Text="Ваш отзыв" Style="{StaticResource SectionLabel}" Margin="0" />
                             <HorizontalStackLayout Spacing="2">
-                                <Button Text="{Binding Star1}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="1" />
-                                <Button Text="{Binding Star2}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="2" />
-                                <Button Text="{Binding Star3}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="3" />
-                                <Button Text="{Binding Star4}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="4" />
-                                <Button Text="{Binding Star5}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="5" />
+                                <Button Text="{Binding Star1}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="1" SemanticProperties.Description="1 звезда" />
+                                <Button Text="{Binding Star2}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="2" SemanticProperties.Description="2 звезды" />
+                                <Button Text="{Binding Star3}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="3" SemanticProperties.Description="3 звезды" />
+                                <Button Text="{Binding Star4}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="4" SemanticProperties.Description="4 звезды" />
+                                <Button Text="{Binding Star5}" Style="{StaticResource IconButton}" TextColor="{StaticResource Warning}" Command="{Binding SetRatingCommand}" CommandParameter="5" SemanticProperties.Description="5 звёзд" />
                             </HorizontalStackLayout>
                             <Border Style="{StaticResource FieldBorder}">
                                 <Editor Placeholder="Расскажите о товаре" Text="{Binding ReviewText}" AutoSize="TextChanges" MinimumHeightRequest="80" />
@@ -96,15 +117,29 @@
             </VerticalStackLayout>
         </ScrollView>
 
-        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" VerticalOptions="Center" />
+        <controls:ProductDetailsSkeleton Grid.RowSpan="2" Style="{StaticResource SkeletonOverlay}" IsVisible="{Binding IsLoading}" />
 
         <!-- Buy bar -->
         <Border Grid.Row="1" Style="{StaticResource Card}" StrokeShape="Rectangle" Padding="16,10" IsVisible="{Binding IsLoaded}">
-            <Grid ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="8">
-                <Button Text="−" Style="{StaticResource StepButton}" Command="{Binding DecreaseCommand}" />
-                <Label Grid.Column="1" Text="{Binding Quantity}" Style="{StaticResource PriceLabel}" VerticalTextAlignment="Center" WidthRequest="32" HorizontalTextAlignment="Center" />
-                <Button Grid.Column="2" Text="+" Style="{StaticResource StepButton}" Command="{Binding IncreaseCommand}" />
-                <Button Grid.Column="3" Text="{Binding CartButtonText}" Command="{Binding AddToCartCommand}" IsEnabled="{Binding InStock}" />
+            <Grid>
+                <!-- Not in the cart yet: choose quantity and add -->
+                <Grid ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="8" IsVisible="{Binding IsInCart, Converter={StaticResource InvertedBool}}">
+                    <Button Text="−" Style="{StaticResource StepButton}" Command="{Binding DecreaseCommand}" SemanticProperties.Description="Меньше" />
+                    <Label Grid.Column="1" Text="{Binding Quantity}" Style="{StaticResource PriceLabel}" VerticalTextAlignment="Center" WidthRequest="32" HorizontalTextAlignment="Center" />
+                    <Button Grid.Column="2" Text="+" Style="{StaticResource StepButton}" Command="{Binding IncreaseCommand}" SemanticProperties.Description="Больше" />
+                    <Button Grid.Column="3" Text="{Binding CartButtonText}" Command="{Binding AddToCartCommand}" IsEnabled="{Binding InStock}" />
+                </Grid>
+
+                <!-- Already in the cart: change quantity right here or remove it -->
+                <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*" ColumnSpacing="8" IsVisible="{Binding IsInCart}">
+                    <ImageButton Style="{StaticResource BarIconButton}" Command="{Binding RemoveFromCartCommand}"
+                                 Source="{AppThemeBinding Light=hero_trash.png, Dark=hero_trash_dark.png}"
+                                 SemanticProperties.Description="Удалить из корзины" />
+                    <Button Grid.Column="1" Text="−" Style="{StaticResource StepButton}" Command="{Binding DecreaseCommand}" SemanticProperties.Description="Меньше" />
+                    <Label Grid.Column="2" Text="{Binding InCartQuantity}" Style="{StaticResource PriceLabel}" VerticalTextAlignment="Center" WidthRequest="32" HorizontalTextAlignment="Center" />
+                    <Button Grid.Column="3" Text="+" Style="{StaticResource StepButton}" Command="{Binding IncreaseCommand}" SemanticProperties.Description="Больше" />
+                    <Button Grid.Column="4" Text="В корзине" Style="{StaticResource SecondaryButton}" Command="{Binding GoToCartCommand}" />
+                </Grid>
             </Grid>
         </Border>
     </Grid>

@@ -2,9 +2,9 @@ using Nonamebtww.Shop.Mobile.ViewModels.Auth;
 
 namespace Nonamebtww.Shop.Mobile.Views.Auth;
 
-public partial class RegisterPage : ContentPageBase {
+public partial class RegisterPage : ContentPageBase<RegisterViewModel> {
   public RegisterPage(RegisterViewModel viewModel) {
     InitializeComponent();
-    BindingContext = viewModel;
+    ViewModel = viewModel;
   }
 }

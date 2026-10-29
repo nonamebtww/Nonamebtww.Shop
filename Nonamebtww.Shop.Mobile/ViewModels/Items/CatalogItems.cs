@@ -1,4 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Catalog.Category;
 using Nonamebtww.Shop.Application.Models.DTOs.Catalog.Product;
 using Nonamebtww.Shop.Application.Models.DTOs.Catalog.Review;
@@ -7,19 +8,19 @@ using Nonamebtww.Shop.Mobile.Presentation;
 namespace Nonamebtww.Shop.Mobile.ViewModels.Items;
 
 /// <summary>Category chip in the catalog. Id = null means «all categories».</summary>
-public sealed partial class CategoryChip(Guid? id, string name, IReadOnlyList<CategoryNode> children) : ObservableObject {
+public sealed partial class CategoryChip(Guid? id, string name, IReadOnlyList<CategoryNode> children) : ReactiveObject {
   public Guid? Id { get; } = id;
   public string Name { get; } = name;
   public IReadOnlyList<CategoryNode> Children { get; } = children;
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsSelected { get; set; }
 
   public static CategoryChip From(CategoryNode node) => new(node.Id, node.Name, node.Children);
 }
 
 /// <summary>Product tile used by the catalog and favorites lists.</summary>
-public sealed partial class ProductCardItem : ObservableObject {
+public sealed partial class ProductCardItem : ReactiveObject {
   public ProductCardItem(ProductSimple product) {
     Id = product.Id;
     Name = product.Name;
@@ -44,7 +45,7 @@ public sealed partial class ProductCardItem : ObservableObject {
   public string StockText => InStock ? $"В наличии: {Stock} шт." : "Нет в наличии";
   public string CartButtonText => InStock ? "В корзину" : "Нет в наличии";
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsFavorite { get; set; }
 }
 

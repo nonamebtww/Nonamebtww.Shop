@@ -1,6 +1,7 @@
 using Nonamebtww.Shop.Application.Common.Results;
 using Nonamebtww.Shop.Application.Models.DTOs.Orders;
 using Nonamebtww.Shop.Application.Models.Enums;
+using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 
 namespace Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Orders;
 
@@ -11,6 +12,9 @@ public interface IOrderService {
   /// Товары резервируются (списываются с остатка).
   /// </summary>
   Task<Result<OrderDetailsDto>> CheckoutAsync(CheckoutRequest request, CancellationToken ct = default);
+
+  /// <summary>Пункты самовывоза или постаматы для выбора на шаге доставки (15.2).</summary>
+  Task<Result<IReadOnlyList<DeliveryPointDto>>> GetDeliveryPointsAsync(DeliveryType type, CancellationToken ct = default);
 
   /// <summary>Оплата через платёжную систему (15.4). Успех — «Подтверждён», корзина очищается (15.5).</summary>
   Task<Result<OrderDetailsDto>> PayAsync(Guid orderId, CancellationToken ct = default);

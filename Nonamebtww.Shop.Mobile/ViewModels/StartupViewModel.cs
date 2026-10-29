@@ -1,4 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Orders;
 using Nonamebtww.Shop.Infrastructure;
@@ -17,7 +18,7 @@ public sealed partial class StartupViewModel(
   IDialogService dialogs) : ViewModelBase(navigation, dialogs) {
   private bool _started;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string StatusText { get; set; } = "Подготовка данных…";
 
   public override async Task OnAppearingAsync() {

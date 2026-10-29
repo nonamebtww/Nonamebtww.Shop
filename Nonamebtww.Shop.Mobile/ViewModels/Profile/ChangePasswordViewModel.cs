@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Profile;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Profile;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
@@ -10,16 +10,16 @@ namespace Nonamebtww.Shop.Mobile.ViewModels.Profile;
 
 public sealed partial class ChangePasswordViewModel(IProfileService profile, INavigationService navigation, IDialogService dialogs)
   : ViewModelBase(navigation, dialogs) {
-  [ObservableProperty]
+  [Reactive]
   public partial string CurrentPassword { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string NewPassword { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string ConfirmPassword { get; set; } = string.Empty;
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task SaveAsync() {
     if (NewPassword != ConfirmPassword) {
       await Dialogs.AlertAsync("Смена пароля", "Пароли не совпадают.");

@@ -1,7 +1,10 @@
+using System.Reactive;
+using FFImageLoading.Maui;
 using Microsoft.Extensions.Logging;
 using Nonamebtww.Shop.Application;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Common;
 using Nonamebtww.Shop.Infrastructure;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.Services.Notifications;
@@ -22,6 +25,8 @@ using Nonamebtww.Shop.Mobile.Views.Catalog;
 using Nonamebtww.Shop.Mobile.Views.Favorites;
 using Nonamebtww.Shop.Mobile.Views.Orders;
 using Nonamebtww.Shop.Mobile.Views.Profile;
+using ReactiveUI;
+using ReactiveUI.Builder;
 
 namespace Nonamebtww.Shop.Mobile;
 
@@ -31,6 +36,14 @@ public static class MauiProgram {
 
     builder
       .UseMauiApp<App>()
+      // ReactiveUI: MAUI main-thread scheduler for ReactiveCommand / WhenAnyValue / ToProperty;
+      // unhandled errors of reactive pipelines are shown instead of crashing the prototype.
+      .UseReactiveUI(rx => rx
+        .WithMaui(Dispatcher.GetForCurrentThread()!)
+        .WithExceptionHandler(Observer.Create<Exception>(ex =>
+          MainThread.BeginInvokeOnMainThread(() => _ = Shell.Current?.DisplayAlertAsync("Ошибка", ex.Message, "OK")))))
+      // FFImageLoading: CachedImage with memory + disk cache for product photos.
+      .UseFFImageLoading()
       .ConfigureFonts(fonts => {
         fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
         fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
@@ -56,7 +69,8 @@ public static class MauiProgram {
     builder.Services
       .AddSingleton<INavigationService, ShellNavigationService>()
       .AddSingleton<IDialogService, DialogService>()
-      .AddSingleton<NotificationPresenter>();
+      .AddSingleton<NotificationPresenter>()
+      .AddSingleton<RemoteDataCache>();
 
     builder.Services
       .AddScreen<StartupPage, StartupViewModel>()
@@ -72,6 +86,8 @@ public static class MauiProgram {
       .AddScreen<OrderDetailsPage, OrderDetailsViewModel>()
       .AddScreen<ProfilePage, ProfileViewModel>()
       .AddScreen<ChangePasswordPage, ChangePasswordViewModel>()
+      .AddScreen<PersonalDataPage, PersonalDataViewModel>()
+      .AddScreen<NotificationsPage, NotificationsViewModel>()
       .AddScreen<AdminHubPage, AdminHubViewModel>()
       .AddScreen<CatalogManagementPage, CatalogManagementViewModel>()
       .AddScreen<ProductEditPage, ProductEditViewModel>()

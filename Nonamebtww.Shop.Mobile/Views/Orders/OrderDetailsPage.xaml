@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Orders.OrderDetailsPage"
+    x:TypeArguments="vm:OrderDetailsViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Orders"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:OrderDetailsViewModel"
     Shell.TabBarIsVisible="False"
     Title="{Binding Title}">
@@ -50,7 +52,7 @@
                     <DataTemplate x:DataType="items:OrderLineItem">
                         <Border Style="{StaticResource Card}">
                             <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="10">
-                                <Image Source="{Binding Photo}" HeightRequest="56" WidthRequest="56" Aspect="AspectFill" />
+                                <ff:CachedImage Source="{Binding Photo}" HeightRequest="56" WidthRequest="56" Aspect="AspectFit" LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png" DownsampleToViewSize="True" />
                                 <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                     <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding QuantityText}" Style="{StaticResource CaptionLabel}" />

@@ -1,5 +1,5 @@
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Auth;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
@@ -11,25 +11,25 @@ namespace Nonamebtww.Shop.Mobile.ViewModels.Auth;
 /// <summary>Use case «Восстановление пароля»: code to email/phone, then a new password.</summary>
 public sealed partial class ForgotPasswordViewModel(IAuthService auth, INavigationService navigation, IDialogService dialogs)
   : ViewModelBase(navigation, dialogs) {
-  [ObservableProperty]
+  [Reactive]
   public partial string Identifier { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsCodeStep { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string CodeHint { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string Code { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string NewPassword { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string ConfirmPassword { get; set; } = string.Empty;
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task SendCodeAsync() {
     var pending = await ExecuteAsync(() => auth.RequestPasswordResetAsync(new PasswordResetRequest(Identifier.Trim())));
     if (pending is null) {
@@ -40,7 +40,7 @@ public sealed partial class ForgotPasswordViewModel(IAuthService auth, INavigati
     IsCodeStep = true;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task ResetAsync() {
     if (NewPassword != ConfirmPassword) {
       await Dialogs.AlertAsync("Восстановление пароля", "Пароли не совпадают.");

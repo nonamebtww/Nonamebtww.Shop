@@ -2,8 +2,20 @@ using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 
 namespace Nonamebtww.Shop.Application.Models.DTOs.Orders;
 
-/// <summary>«Доставка, адрес, оплата» процесса «Оформление заказа».</summary>
-public sealed record CheckoutRequest(DeliveryType DeliveryType, AddressDto Address, PaymentMethod PaymentMethod);
+/// <summary>
+/// «Доставка, адрес, оплата» процесса «Оформление заказа».
+/// Для самовывоза и постамата адрес берётся из выбранного пункта <paramref name="DeliveryPointId"/>.
+/// </summary>
+public sealed record CheckoutRequest(
+  DeliveryType DeliveryType,
+  AddressDto? Address,
+  PaymentMethod PaymentMethod,
+  string? DeliveryPointId = null);
+
+/// <summary>Пункт выдачи или постамат.</summary>
+public sealed record DeliveryPointDto(string Id, DeliveryType Type, string Name, AddressDto Address, string Schedule) {
+  public override string ToString() => Name;
+}
 
 /// <summary>Строка «Списка заказов».</summary>
 public sealed record OrderSummaryDto(

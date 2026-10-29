@@ -1,10 +1,11 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Orders;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Orders;
 using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 using Nonamebtww.Shop.Mobile.Presentation;
+using Nonamebtww.Shop.Mobile.Services.Data;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
 using Nonamebtww.Shop.Mobile.Services.Navigation;
 using Nonamebtww.Shop.Mobile.ViewModels.Base;
@@ -13,47 +14,47 @@ using Nonamebtww.Shop.Mobile.ViewModels.Items;
 namespace Nonamebtww.Shop.Mobile.ViewModels.Orders;
 
 /// <summary>Order card with its status on the order state diagram; pay or cancel when allowed.</summary>
-public sealed partial class OrderDetailsViewModel(IOrderService orders, INavigationService navigation, IDialogService dialogs)
+public sealed partial class OrderDetailsViewModel(IOrderService orders, RemoteDataCache cache, INavigationService navigation, IDialogService dialogs)
   : ViewModelBase(navigation, dialogs), IQueryAttributable {
   private Guid _orderId;
 
   public ObservableCollection<StatusStep> Timeline { get; } = [];
   public ObservableCollection<OrderLineItem> Lines { get; } = [];
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsLoaded { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string DateText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string StatusText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial Color StatusColor { get; set; } = Colors.Gray;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string DeliveryText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string AddressText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string CourierText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string PaymentText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial string TotalText { get; set; } = string.Empty;
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool CanPay { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool CanCancel { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string PayButtonText { get; set; } = "Оплатить";
 
   public void ApplyQueryAttributes(IDictionary<string, object> query) {
@@ -69,20 +70,21 @@ public sealed partial class OrderDetailsViewModel(IOrderService orders, INavigat
     }
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task PayAsync() {
     var order = await ExecuteAsync(() => orders.PayAsync(_orderId));
     if (order is null) {
       return;
     }
 
+    cache.Invalidate();
     Apply(order);
     await Dialogs.AlertAsync("Оплата", order.Status == OrderStatus.AwaitingPayment
       ? "Платёж отклонён платёжной системой. Попробуйте ещё раз."
       : "Оплата прошла, заказ подтверждён.");
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task CancelAsync() {
     if (!await Dialogs.ConfirmAsync("Отмена заказа", "Отменить заказ? Оплаченные деньги вернутся на карту.")) {
       return;
@@ -90,6 +92,7 @@ public sealed partial class OrderDetailsViewModel(IOrderService orders, INavigat
 
     var order = await ExecuteAsync(() => orders.CancelAsync(_orderId));
     if (order is not null) {
+      cache.Invalidate();
       Apply(order);
     }
   }
@@ -101,7 +104,12 @@ public sealed partial class OrderDetailsViewModel(IOrderService orders, INavigat
     StatusColor = DisplayText.ColorOf(order.Status);
 
     DeliveryText = order.DeliveryType is { } type ? DisplayText.Of(type) : "Тип доставки не выбран";
-    AddressText = order.Address?.ToString() ?? string.Empty;
+    // Pickup / parcel locker: the point name is kept in the address comment.
+    AddressText = order.Address is not { } address
+      ? string.Empty
+      : order.DeliveryType is { } kind && !kind.IsToDoor() && !string.IsNullOrWhiteSpace(address.Comment)
+        ? $"{address.Comment}: {address}"
+        : address.ToString();
     CourierText = order.Delivery is { } delivery
       ? $"{DisplayText.Of(delivery.Status)}" + (delivery.CourierName is { } courier ? $" · курьер {courier}" : string.Empty)
         + (delivery.FailureReason is { } reason ? $" · {reason}" : string.Empty)

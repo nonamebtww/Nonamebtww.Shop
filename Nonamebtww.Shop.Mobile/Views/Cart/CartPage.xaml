@@ -1,17 +1,20 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Cart.CartPage"
+    x:TypeArguments="vm:CartViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Cart"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:CartViewModel"
     Shell.TabBarIsVisible="True"
     Title="Корзина">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Очистить" Command="{Binding ClearCommand}" />
+        <ToolbarItem IconImageSource="hero_trash.png" Text="Очистить корзину" Command="{Binding ClearCommand}"
+                     SemanticProperties.Description="Очистить корзину" />
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="*,Auto">
@@ -31,10 +34,15 @@
                     <DataTemplate x:DataType="items:CartLineItem">
                         <Border Style="{StaticResource Card}">
                             <Grid ColumnDefinitions="72,*" ColumnSpacing="12" RowDefinitions="Auto,Auto">
-                                <Image Grid.RowSpan="2" Source="{Binding Photo}" HeightRequest="72" WidthRequest="72" Aspect="AspectFill" VerticalOptions="Start" />
+                                <Border Grid.RowSpan="2" StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="White"
+                                        HeightRequest="72" WidthRequest="72" VerticalOptions="Start">
+                                    <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" DownsampleToViewSize="True"
+                                                    LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png" />
+                                </Border>
                                 <VerticalStackLayout Grid.Column="1" Spacing="2">
                                     <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
                                     <Label Text="{Binding PriceText}" Style="{StaticResource CaptionLabel}" />
+                                    <Label Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" />
                                     <Label Text="{Binding Warning}" TextColor="{StaticResource Danger}" FontSize="12"
                                            IsVisible="{Binding Warning, Converter={StaticResource IsNotEmpty}}" />
                                 </VerticalStackLayout>
@@ -44,12 +52,14 @@
                                             CommandParameter="{Binding .}" />
                                     <Label Grid.Column="1" Text="{Binding Quantity}" Style="{StaticResource PriceLabel}" WidthRequest="28"
                                            HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
-                                    <Button Grid.Column="2" Text="+" Style="{StaticResource StepButton}"
+                                    <Button Grid.Column="2" Text="+" Style="{StaticResource StepButton}" Opacity="{Binding CanIncrease, Converter={StaticResource EnabledOpacity}}"
                                             Command="{Binding IncreaseCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
                                             CommandParameter="{Binding .}" />
                                     <Label Grid.Column="3" Text="{Binding LineTotalText}" Style="{StaticResource PriceLabel}"
                                            HorizontalTextAlignment="End" VerticalTextAlignment="Center" />
-                                    <Button Grid.Column="4" Text="✕" Style="{StaticResource IconButton}" TextColor="{StaticResource Gray500}" FontSize="16"
+                                    <ImageButton Grid.Column="4" Style="{StaticResource BarIconButton}"
+                                            Source="{AppThemeBinding Light=hero_trash.png, Dark=hero_trash_dark.png}"
+                                            SemanticProperties.Description="Удалить из корзины"
                                             Command="{Binding RemoveCommand, Source={RelativeSource AncestorType={x:Type vm:CartViewModel}}, x:DataType=vm:CartViewModel}"
                                             CommandParameter="{Binding .}" />
                                 </Grid>

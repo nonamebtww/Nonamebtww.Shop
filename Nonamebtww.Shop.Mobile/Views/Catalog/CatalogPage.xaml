@@ -1,24 +1,33 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Catalog.CatalogPage"
+    x:TypeArguments="vm:CatalogViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Catalog"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:controls="clr-namespace:Nonamebtww.Shop.Mobile.Controls"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:CatalogViewModel"
     Shell.TabBarIsVisible="True"
     Title="Каталог">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
-        <!-- Search -->
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-            <SearchBar Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" />
-            <Button Grid.Column="1" Text="Фильтры" Style="{StaticResource SecondaryButton}" Command="{Binding ToggleFiltersCommand}" />
+    <!-- Search and filters live in the navigation bar -->
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="2" Padding="0,0,6,0" VerticalOptions="Center">
+            <SearchBar Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
+                       BackgroundColor="Transparent" VerticalOptions="Center" />
+            <ImageButton Grid.Column="1" Style="{StaticResource BarIconButton}" Command="{Binding ToggleFiltersCommand}"
+                         Source="{AppThemeBinding Light=hero_adjustments_horizontal.png, Dark=hero_adjustments_horizontal_dark.png}"
+                         SemanticProperties.Description="Фильтры и сортировка" VerticalOptions="Center" />
         </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
 
         <!-- Root categories -->
-        <CollectionView Grid.Row="1" ItemsSource="{Binding Categories}" ItemsLayout="HorizontalList" HeightRequest="44">
+        <CollectionView ItemsSource="{Binding Categories}" ItemsLayout="HorizontalList" HeightRequest="44">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="items:CategoryChip">
                     <Border Style="{StaticResource Chip}" Margin="0,0,8,0">
@@ -46,7 +55,7 @@
         </CollectionView>
 
         <!-- Subcategories of the selected category -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="40"
+        <CollectionView Grid.Row="1" ItemsSource="{Binding SubCategories}" ItemsLayout="HorizontalList" HeightRequest="40"
                         IsVisible="{Binding HasSubCategories}">
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="items:CategoryChip">
@@ -68,7 +77,7 @@
         </CollectionView>
 
         <!-- Filters panel -->
-        <Border Grid.Row="3" Style="{StaticResource Card}" IsVisible="{Binding IsFiltersVisible}">
+        <Border Grid.Row="2" Style="{StaticResource Card}" IsVisible="{Binding IsFiltersVisible}">
             <VerticalStackLayout Spacing="10">
                 <Label Text="Цена, ₽" Style="{StaticResource CaptionLabel}" />
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
@@ -83,7 +92,9 @@
                     <Label Text="Только в наличии" Style="{StaticResource BodyLabel}" VerticalTextAlignment="Center" />
                     <Switch Grid.Column="1" IsToggled="{Binding OnlyInStock}" />
                 </Grid>
-                <Picker Title="Сортировка" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Picker Title="Сортировка" ItemsSource="{Binding SortOptions}" SelectedItem="{Binding SelectedSort}" />
+                </Border>
                 <Grid ColumnDefinitions="*,*" ColumnSpacing="8">
                     <Button Text="Сбросить" Style="{StaticResource SecondaryButton}" Command="{Binding ResetFiltersCommand}" />
                     <Button Grid.Column="1" Text="Применить" Command="{Binding ApplyFiltersCommand}" />
@@ -92,7 +103,7 @@
         </Border>
 
         <!-- Products -->
-        <RefreshView Grid.Row="4" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
+        <RefreshView Grid.Row="3" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Products}" RemainingItemsThreshold="4"
                             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                 <CollectionView.ItemsLayout>
@@ -109,8 +120,13 @@
                         <Border Style="{StaticResource Card}" Padding="8">
                             <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
                                 <Grid>
-                                    <Image Source="{Binding Photo}" HeightRequest="130" Aspect="AspectFill" />
-                                    <ImageButton Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}}" Style="{StaticResource FavoriteButton}"
+                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="White" HeightRequest="130">
+                                        <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" HeightRequest="130"
+                                                        LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png"
+                                                        DownsampleToViewSize="True" FadeAnimationEnabled="True" />
+                                    </Border>
+                                    <ImageButton Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}, ConverterParameter=black}" Style="{StaticResource PhotoBadgeButton}"
+                                            SemanticProperties.Description="Избранное"
                                             HorizontalOptions="End" VerticalOptions="Start"
                                             Command="{Binding ToggleFavoriteCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
                                             CommandParameter="{Binding .}" />
@@ -135,5 +151,9 @@
                 </CollectionView.Footer>
             </CollectionView>
         </RefreshView>
+
+        <!-- Skeleton while products load from the «API» -->
+        <controls:ProductGridSkeleton Grid.RowSpan="4" Style="{StaticResource SkeletonOverlay}"
+                                      IsVisible="{Binding IsLoading}" />
     </Grid>
 </views:ContentPageBase>

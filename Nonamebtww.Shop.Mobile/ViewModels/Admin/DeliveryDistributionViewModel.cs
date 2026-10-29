@@ -1,6 +1,6 @@
 using System.Collections.ObjectModel;
-using CommunityToolkit.Mvvm.ComponentModel;
-using CommunityToolkit.Mvvm.Input;
+using ReactiveUI;
+using ReactiveUI.SourceGenerators;
 using Nonamebtww.Shop.Application.Models.DTOs.Delivery;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Delivery;
 using Nonamebtww.Shop.Mobile.Services.Dialogs;
@@ -17,21 +17,21 @@ public sealed partial class DeliveryDistributionViewModel(IDeliveryService deliv
 
   public ObservableCollection<DispatchItem> Orders { get; } = [];
 
-  [ObservableProperty]
+  [Reactive]
   public partial bool IsRefreshing { get; set; }
 
-  [ObservableProperty]
+  [Reactive]
   public partial string CouriersText { get; set; } = string.Empty;
 
   public override Task OnAppearingAsync() => LoadAsync();
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task RefreshAsync() {
     await LoadAsync();
     IsRefreshing = false;
   }
 
-  [RelayCommand]
+  [ReactiveCommand]
   private async Task AssignAsync(DispatchItem item) {
     if (_couriers.Count == 0) {
       await Dialogs.AlertAsync("Курьеры", "Нет доступных курьеров.");

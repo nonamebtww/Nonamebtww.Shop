@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Profile.PersonalDataPage"
+    x:TypeArguments="vm:PersonalDataViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Profile"
+    xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:controls="clr-namespace:Nonamebtww.Shop.Mobile.Controls"
+    x:DataType="vm:PersonalDataViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Личные данные">
+
+    <Grid>
+        <ScrollView>
+            <VerticalStackLayout Padding="16" Spacing="10">
+                <Label Text="Имя" Style="{StaticResource CaptionLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Имя" Text="{Binding FirstName}" />
+                </Border>
+                <Label Text="Фамилия" Style="{StaticResource CaptionLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Фамилия" Text="{Binding LastName}" />
+                </Border>
+                <Label Text="Email" Style="{StaticResource CaptionLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="Email" Text="{Binding Email}" Keyboard="Email" IsSpellCheckEnabled="False" />
+                </Border>
+                <Label Text="Телефон" Style="{StaticResource CaptionLabel}" />
+                <Border Style="{StaticResource FieldBorder}">
+                    <Entry Placeholder="+7 900 000-00-00" Text="{Binding Phone}" Keyboard="Telephone" />
+                </Border>
+                <Button Text="Сохранить изменения" Command="{Binding SaveCommand}" Margin="0,6,0,0" />
+
+                <Label Text="Устройства" Style="{StaticResource SectionLabel}" Margin="0,16,0,0" />
+                <Label Text="Устройства, на которых выполнен вход в аккаунт" Style="{StaticResource CaptionLabel}" />
+                <VerticalStackLayout BindableLayout.ItemsSource="{Binding Devices}" Spacing="8">
+                    <BindableLayout.ItemTemplate>
+                        <DataTemplate x:DataType="items:DeviceItem">
+                            <Border Style="{StaticResource Card}">
+                                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                    <Image Source="{AppThemeBinding Light=hero_device_phone_mobile.png, Dark=hero_device_phone_mobile_dark.png}"
+                                           WidthRequest="24" HeightRequest="24" VerticalOptions="Center" />
+                                    <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
+                                        <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" />
+                                        <Label Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
+                                    </VerticalStackLayout>
+                                    <Button Grid.Column="2" Text="Выйти" Style="{StaticResource TextButton}" IsVisible="{Binding CanSignOut}"
+                                            Command="{Binding SignOutDeviceCommand, Source={RelativeSource AncestorType={x:Type vm:PersonalDataViewModel}}, x:DataType=vm:PersonalDataViewModel}"
+                                            CommandParameter="{Binding .}" />
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </BindableLayout.ItemTemplate>
+                </VerticalStackLayout>
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <controls:FormSkeleton Padding="16" Style="{StaticResource SkeletonOverlay}" IsVisible="{Binding IsLoading}" />
+    </Grid>
+</views:ContentPageBase>

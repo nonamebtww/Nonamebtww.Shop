@@ -1,17 +1,21 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <views:ContentPageBase
     x:Class="Nonamebtww.Shop.Mobile.Views.Admin.CatalogManagementPage"
+    x:TypeArguments="vm:CatalogManagementViewModel"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
     xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Admin"
     xmlns:items="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Items"
+    xmlns:controls="clr-namespace:Nonamebtww.Shop.Mobile.Controls"
+    xmlns:ff="clr-namespace:FFImageLoading.Maui;assembly=FFImageLoading.Maui"
     x:DataType="vm:CatalogManagementViewModel"
     Shell.TabBarIsVisible="False"
     Title="Управление каталогом">
 
     <ContentPage.ToolbarItems>
-        <ToolbarItem Text="Добавить" Command="{Binding AddCommand}" />
+        <ToolbarItem IconImageSource="hero_plus.png" Text="Добавить" Command="{Binding AddCommand}"
+                     SemanticProperties.Description="Добавить" />
     </ContentPage.ToolbarItems>
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="12,8,12,0" RowSpacing="8">
@@ -36,7 +40,8 @@
                    IsVisible="{Binding IsProductsTab}" />
 
         <!-- Products -->
-        <CollectionView Grid.Row="2" ItemsSource="{Binding Products}" IsVisible="{Binding IsProductsTab}">
+        <RefreshView Grid.Row="2" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}" IsVisible="{Binding IsProductsTab}">
+        <CollectionView ItemsSource="{Binding Products}">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="8" />
             </CollectionView.ItemsLayout>
@@ -44,7 +49,10 @@
                 <DataTemplate x:DataType="items:ManagedProductItem">
                     <Border Style="{StaticResource Card}">
                         <Grid ColumnDefinitions="56,*,Auto" ColumnSpacing="10">
-                            <Image Source="{Binding Photo}" HeightRequest="56" WidthRequest="56" Aspect="AspectFill" />
+                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 8" BackgroundColor="White" HeightRequest="56" WidthRequest="56">
+                                <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" DownsampleToViewSize="True"
+                                                LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png" />
+                            </Border>
                             <VerticalStackLayout Grid.Column="1" VerticalOptions="Center">
                                 <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
                                 <Label Text="{Binding Details}" Style="{StaticResource CaptionLabel}" />
@@ -67,6 +75,7 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+        </RefreshView>
 
         <!-- Categories -->
         <CollectionView Grid.Row="2" ItemsSource="{Binding Categories}" IsVisible="{Binding IsProductsTab, Converter={StaticResource InvertedBool}}">
@@ -89,5 +98,7 @@
                 </DataTemplate>
             </CollectionView.ItemTemplate>
         </CollectionView>
+
+        <controls:ListSkeleton Grid.Row="2" Rows="7" ThumbnailSize="56" Style="{StaticResource SkeletonOverlay}" IsVisible="{Binding IsLoading}" />
     </Grid>
 </views:ContentPageBase>

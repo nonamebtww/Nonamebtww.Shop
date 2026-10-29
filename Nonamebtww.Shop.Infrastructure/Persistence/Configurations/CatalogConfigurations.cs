@@ -60,7 +60,8 @@ internal sealed class ReviewConfiguration : IEntityTypeConfiguration<Review> {
 
     builder.Property(x => x.Rating).HasConversion(ValueObjectConverters.Rating).IsRequired();
     builder.Property(x => x.Text).HasMaxLength(4000);
-    builder.HasIndex(x => new { x.UserId, x.ProductId }).IsUnique();
+    // Не уникальный: у пользователя может быть несколько отзывов на один товар.
+    builder.HasIndex(x => new { x.UserId, x.ProductId });
 
     builder.HasOne<User>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
     builder.HasOne<Product>().WithMany().HasForeignKey(x => x.ProductId).OnDelete(DeleteBehavior.Cascade);

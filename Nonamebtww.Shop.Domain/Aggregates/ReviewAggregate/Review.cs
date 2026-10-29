@@ -6,8 +6,7 @@ using Nonamebtww.Shop.Domain.ValueObjects;
 namespace Nonamebtww.Shop.Domain.Aggregates.ReviewAggregate;
 
 /// <summary>
-/// Отзыв о товаре (IDEF1X «Отзыв»). Один отзыв на пару (пользователь, товар) —
-/// проверяется через <see cref="IReviewsRepository.GetByUserAndProductAsync"/>.
+/// Отзыв о товаре (IDEF1X «Отзыв»). Пользователь может оставить на товар несколько отзывов.
 /// </summary>
 public class Review : AggregateRoot<Guid> {
   public const int MaxTextLength = 4000;
