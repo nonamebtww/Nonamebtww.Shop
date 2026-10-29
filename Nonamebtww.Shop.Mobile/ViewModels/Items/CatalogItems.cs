@@ -25,7 +25,7 @@ public sealed partial class ProductCardItem : ReactiveObject {
     Id = product.Id;
     Name = product.Name;
     Price = product.Price;
-    Photo = ImageSources.Photo(product.Photo);
+    Photo = ImageSources.Thumbnail(product.Photo);
     Stock = product.Stock;
     RatingText = product.Rating is null
       ? "нет отзывов"

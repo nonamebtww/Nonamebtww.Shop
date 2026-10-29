@@ -44,6 +44,12 @@ public static class MauiProgram {
           MainThread.BeginInvokeOnMainThread(() => _ = Shell.Current?.DisplayAlertAsync("Ошибка", ex.Message, "OK")))))
       // FFImageLoading: CachedImage with memory + disk cache for product photos.
       .UseFFImageLoading()
+#if IOS || MACCATALYST
+      // The default iOS CollectionView handler of .NET 10 (CollectionViewHandler2) stalled the main thread
+      // for 50–150 ms on every new row of the catalog grid; the classic handler scrolls smoothly.
+      .ConfigureMauiHandlers(handlers =>
+        handlers.AddHandler<CollectionView, Microsoft.Maui.Controls.Handlers.Items.CollectionViewHandler>())
+#endif
       .ConfigureFonts(fonts => {
         fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
         fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");

@@ -20,7 +20,7 @@ public sealed record OrderListItem(Guid Id, string Number, string StatusText, Co
 public sealed record OrderLineItem(string Name, string Photo, string QuantityText, string TotalText) {
   public static OrderLineItem From(OrderItemDto item) => new(
     item.Name,
-    ImageSources.Photo(item.PhotoUrl),
+    ImageSources.Thumbnail(item.PhotoUrl),
     $"{item.Quantity} × {DisplayText.Money(item.Price)}",
     DisplayText.Money(item.LineTotal));
 }

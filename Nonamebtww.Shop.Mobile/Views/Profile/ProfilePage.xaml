@@ -18,8 +18,7 @@
 
     <!-- Search in the navigation bar: finds products in the catalog -->
     <Shell.TitleView>
-        <SearchBar Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
-                   BackgroundColor="Transparent" VerticalOptions="Center" Margin="0,0,4,0" />
+        <controls:SearchField Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" Margin="0,0,8,0" />
     </Shell.TitleView>
 
     <Grid>

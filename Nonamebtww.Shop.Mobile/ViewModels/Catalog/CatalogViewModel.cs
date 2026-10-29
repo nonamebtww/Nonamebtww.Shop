@@ -34,7 +34,9 @@ public sealed partial class CatalogViewModel(
 
   public ObservableCollection<CategoryChip> Categories { get; } = [];
   public ObservableCollection<CategoryChip> SubCategories { get; } = [];
-  public ObservableCollection<ProductCardItem> Products { get; } = [];
+  /// <summary>Replaced as a whole for the first page (one list reset instead of 20 inserts).</summary>
+  [Reactive]
+  public partial ObservableCollection<ProductCardItem> Products { get; set; } = [];
 
   public IReadOnlyList<Option<ProductSort>> SortOptions { get; } =
     Enum.GetValues<ProductSort>().Select(x => new Option<ProductSort>(x, DisplayText.Of(x))).ToList();
@@ -191,7 +193,7 @@ public sealed partial class CatalogViewModel(
     _page = 1;
     var search = BuildSearch();
     if (showSkeleton && !cache.Contains(SearchKey(search))) {
-      Products.Clear();
+      Products = [];
     }
 
     await LoadWithSkeletonAsync(() => LoadPageAsync(replace: true), () => !showSkeleton || cache.Contains(SearchKey(search)));
@@ -206,11 +208,11 @@ public sealed partial class CatalogViewModel(
     }
 
     if (replace || _page == 1) {
-      Products.Clear();
-    }
-
-    foreach (var product in page.Items) {
-      Products.Add(new ProductCardItem(product));
+      Products = new ObservableCollection<ProductCardItem>(page.Items.Select(x => new ProductCardItem(x)));
+    } else {
+      foreach (var product in page.Items) {
+        Products.Add(new ProductCardItem(product));
+      }
     }
 
     _hasNextPage = page.HasNextPage;

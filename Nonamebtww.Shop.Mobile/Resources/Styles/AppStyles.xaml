@@ -105,6 +105,20 @@
         <Setter Property="CornerRadius" Value="22" />
     </Style>
 
+    <!-- Product grid card (catalog): fixed height so every card is the same size.
+         8 + 130 photo + 4 + 40 title (2 lines) + 4 + 16 rating + 4 + 22 price + 4 + 36 button + 8 = 276 -->
+    <Style x:Key="ProductCard" TargetType="Border" BasedOn="{StaticResource Card}">
+        <Setter Property="Padding" Value="8" />
+        <Setter Property="HeightRequest" Value="276" />
+    </Style>
+
+    <Style x:Key="ProductPhotoFrame" TargetType="Border">
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 10" />
+        <Setter Property="BackgroundColor" Value="White" />
+    </Style>
+
+
     <!-- Heart over a product photo: white disc keeps the black HeroIcon readable on any photo and in dark mode. -->
     <Style x:Key="PhotoBadgeButton" TargetType="ImageButton">
         <Setter Property="BackgroundColor" Value="#E6FFFFFF" />

@@ -132,16 +132,31 @@ public sealed class ProductGridSkeleton : SkeletonView {
 
     for (var i = 0; i < 6; i++) {
       grid.RowDefinitions.Add(new RowDefinition(GridLength.Auto));
-      var card = new VerticalStackLayout {
-        Spacing = 8,
+      // Same geometry as the ProductCard style: 8 + 130 + 4 + 40 + 4 + 16 + 4 + 22 + 4 + 36 + 8 = 276.
+      var rows = new Grid {
+        RowDefinitions = [new(130), new(40), new(16), new(22), new(36)],
+        RowSpacing = 4,
         Children = {
-          new SkeletonBlock { HeightRequest = 130, CornerRadius = 12 },
-          new SkeletonBlock { HeightRequest = 14 },
-          new SkeletonBlock { HeightRequest = 14, WidthRequest = 90, HorizontalOptions = LayoutOptions.Start },
-          new SkeletonBlock { HeightRequest = 18, WidthRequest = 70, HorizontalOptions = LayoutOptions.Start },
-          new SkeletonBlock { HeightRequest = 36, CornerRadius = 18 }
+          new SkeletonBlock { CornerRadius = 10 },
+          new VerticalStackLayout {
+            Spacing = 6,
+            Children = {
+              new SkeletonBlock { HeightRequest = 14 },
+              new SkeletonBlock { HeightRequest = 14, WidthRequest = 90, HorizontalOptions = LayoutOptions.Start }
+            }
+          }.Row(1),
+          new SkeletonBlock { HeightRequest = 12, WidthRequest = 80, HorizontalOptions = LayoutOptions.Start, VerticalOptions = LayoutOptions.Center }.Row(2),
+          new SkeletonBlock { HeightRequest = 18, WidthRequest = 70, HorizontalOptions = LayoutOptions.Start, VerticalOptions = LayoutOptions.Center }.Row(3),
+          new SkeletonBlock { CornerRadius = 8 }.Row(4)
         }
       };
+      var card = new Border {
+        StrokeThickness = 0,
+        StrokeShape = new RoundRectangle { CornerRadius = 14 },
+        Padding = 8,
+        HeightRequest = 276,
+        Content = rows
+      }.WithCardBackground();
       grid.Add(card, i % 2, i / 2);
     }
 
@@ -284,6 +299,11 @@ internal static class SkeletonExtensions {
 
   public static T Column<T>(this T view, int column) where T : BindableObject {
     Grid.SetColumn(view, column);
+    return view;
+  }
+
+  public static T Row<T>(this T view, int row) where T : BindableObject {
+    Grid.SetRow(view, row);
     return view;
   }
 }

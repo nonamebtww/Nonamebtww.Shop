@@ -16,8 +16,7 @@
     <!-- Search and filters live in the navigation bar -->
     <Shell.TitleView>
         <Grid ColumnDefinitions="*,Auto" ColumnSpacing="2" Padding="0,0,6,0" VerticalOptions="Center">
-            <SearchBar Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
-                       BackgroundColor="Transparent" VerticalOptions="Center" />
+            <controls:SearchField Placeholder="Поиск товаров" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" />
             <ImageButton Grid.Column="1" Style="{StaticResource BarIconButton}" Command="{Binding ToggleFiltersCommand}"
                          Source="{AppThemeBinding Light=hero_adjustments_horizontal.png, Dark=hero_adjustments_horizontal_dark.png}"
                          SemanticProperties.Description="Фильтры и сортировка" VerticalOptions="Center" />
@@ -105,6 +104,7 @@
         <!-- Products -->
         <RefreshView Grid.Row="3" IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
             <CollectionView ItemsSource="{Binding Products}" RemainingItemsThreshold="4"
+                            ItemSizingStrategy="MeasureFirstItem"
                             RemainingItemsThresholdReachedCommand="{Binding LoadMoreCommand}">
                 <CollectionView.ItemsLayout>
                     <GridItemsLayout Orientation="Vertical" Span="2" HorizontalItemSpacing="10" VerticalItemSpacing="10" />
@@ -116,25 +116,33 @@
                     </VerticalStackLayout>
                 </CollectionView.EmptyView>
                 <CollectionView.ItemTemplate>
+                    <!-- Fixed-size card: every row has a fixed height, so all cards are identical
+                         and the list measures only the first item (MeasureFirstItem). -->
                     <DataTemplate x:DataType="items:ProductCardItem">
-                        <Border Style="{StaticResource Card}" Padding="8">
-                            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" RowSpacing="4">
-                                <Grid>
-                                    <Border StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="White" HeightRequest="130">
-                                        <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" HeightRequest="130"
-                                                        LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png"
-                                                        DownsampleToViewSize="True" FadeAnimationEnabled="True" />
-                                    </Border>
-                                    <ImageButton Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}, ConverterParameter=black}" Style="{StaticResource PhotoBadgeButton}"
-                                            SemanticProperties.Description="Избранное"
-                                            HorizontalOptions="End" VerticalOptions="Start"
-                                            Command="{Binding ToggleFavoriteCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
-                                            CommandParameter="{Binding .}" />
-                                </Grid>
-                                <Label Grid.Row="1" Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
-                                <Label Grid.Row="2" Text="{Binding RatingText}" Style="{StaticResource CaptionLabel}" />
-                                <Label Grid.Row="3" Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" />
-                                <Button Grid.Row="4" Text="{Binding CartButtonText}" Padding="8,6" MinimumHeightRequest="36" IsEnabled="{Binding InStock}"
+                        <Border Style="{StaticResource ProductCard}">
+                            <Grid RowDefinitions="130,40,16,22,36" RowSpacing="4">
+                                <ff:CachedImage Source="{Binding Photo}"
+                                            Aspect="AspectFill"
+                                            FadeAnimationEnabled="False"
+                                            RetryCount="3"
+                                            RetryDelay="600"
+                                            CacheDuration="30.00:00:00"
+                                            HeightRequest="130"
+                                            DownsampleHeight="130"
+                                            DownsampleUseDipUnits="True"
+                                            DownsampleToViewSize="True"
+                                            BitmapOptimizations="True"
+                                            ErrorPlaceholder="product_placeholder.png"
+                                            InputTransparent="True" />
+                                <ImageButton Source="{Binding IsFavorite, Converter={StaticResource FavoriteIcon}, ConverterParameter=black}" Style="{StaticResource PhotoBadgeButton}"
+                                        SemanticProperties.Description="Избранное"
+                                        HorizontalOptions="End" VerticalOptions="Start"
+                                        Command="{Binding ToggleFavoriteCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
+                                        CommandParameter="{Binding .}" />
+                                <Label Grid.Row="1" Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" VerticalTextAlignment="Start" />
+                                <Label Grid.Row="2" Text="{Binding RatingText}" Style="{StaticResource CaptionLabel}" MaxLines="1" LineBreakMode="TailTruncation" />
+                                <Label Grid.Row="3" Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" MaxLines="1" />
+                                <Button Grid.Row="4" Text="{Binding CartButtonText}" Padding="8,0" HeightRequest="36" MinimumHeightRequest="36" IsEnabled="{Binding InStock}"
                                         Command="{Binding AddToCartCommand, Source={RelativeSource AncestorType={x:Type vm:CatalogViewModel}}, x:DataType=vm:CatalogViewModel}"
                                         CommandParameter="{Binding .}" />
                             </Grid>

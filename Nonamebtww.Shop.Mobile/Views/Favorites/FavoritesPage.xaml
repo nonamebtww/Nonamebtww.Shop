@@ -13,7 +13,7 @@
     Title="Избранное">
 
     <RefreshView IsRefreshing="{Binding IsRefreshing}" Command="{Binding RefreshCommand}">
-        <CollectionView ItemsSource="{Binding Items}" Margin="12,8">
+        <CollectionView ItemsSource="{Binding Items}" Margin="12,8" ItemSizingStrategy="MeasureFirstItem">
             <CollectionView.ItemsLayout>
                 <LinearItemsLayout Orientation="Vertical" ItemSpacing="10" />
             </CollectionView.ItemsLayout>
@@ -25,17 +25,29 @@
             </CollectionView.EmptyView>
             <CollectionView.ItemTemplate>
                 <DataTemplate x:DataType="items:ProductCardItem">
-                    <Border Style="{StaticResource Card}">
+                    <!-- Fixed-size row: 12 + 92 + 12 = 116 pt for every product -->
+                    <Border Style="{StaticResource Card}" HeightRequest="116">
                         <Grid ColumnDefinitions="80,*,Auto" ColumnSpacing="12">
-                            <Border StrokeThickness="0" StrokeShape="RoundRectangle 10" BackgroundColor="White" HeightRequest="80" WidthRequest="80">
-                                <ff:CachedImage Source="{Binding Photo}" Aspect="AspectFit" DownsampleToViewSize="True"
-                                                LoadingPlaceholder="product_placeholder.png" ErrorPlaceholder="product_placeholder.png" />
+                            <Border Style="{StaticResource ProductPhotoFrame}" HeightRequest="80" WidthRequest="80" VerticalOptions="Center">
+                                <ff:CachedImage Source="{Binding Photo}"
+                                                Aspect="AspectFill"
+                                                FadeAnimationEnabled="False"
+                                                RetryCount="3"
+                                                RetryDelay="600"
+                                                CacheDuration="30.00:00:00"
+                                                HeightRequest="80"
+                                                DownsampleHeight="80"
+                                                DownsampleUseDipUnits="True"
+                                                DownsampleToViewSize="True"
+                                                BitmapOptimizations="True"
+                                                ErrorPlaceholder="product_placeholder.png"
+                                                InputTransparent="True" />
                             </Border>
-                            <VerticalStackLayout Grid.Column="1" Spacing="4" VerticalOptions="Center">
+                            <Grid Grid.Column="1" RowDefinitions="40,22,16" RowSpacing="4" VerticalOptions="Center">
                                 <Label Text="{Binding Name}" Style="{StaticResource BodyLabel}" MaxLines="2" LineBreakMode="TailTruncation" />
-                                <Label Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" />
-                                <Label Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" />
-                            </VerticalStackLayout>
+                                <Label Grid.Row="1" Text="{Binding PriceText}" Style="{StaticResource PriceLabel}" MaxLines="1" />
+                                <Label Grid.Row="2" Text="{Binding StockText}" Style="{StaticResource CaptionLabel}" MaxLines="1" />
+                            </Grid>
                             <VerticalStackLayout Grid.Column="2" Spacing="4" VerticalOptions="Center">
                                 <ImageButton Source="{AppThemeBinding Light=hero_heart_solid.png, Dark=hero_heart_solid_dark.png}" Style="{StaticResource BarIconButton}"
                                         SemanticProperties.Description="Убрать из избранного"

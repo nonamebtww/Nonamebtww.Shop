@@ -13,7 +13,7 @@ public sealed record ManagedProductItem(Guid Id, string Name, string Photo, stri
   public static ManagedProductItem From(ProductSimple product) => new(
     product.Id,
     product.Name,
-    ImageSources.Photo(product.Photo),
+    ImageSources.Thumbnail(product.Photo),
     $"{product.Sku} · {DisplayText.Money(product.Price)} · остаток {product.Stock}" + (product.IsActive ? string.Empty : " · снят с продажи"),
     product.IsActive,
     product.Stock);

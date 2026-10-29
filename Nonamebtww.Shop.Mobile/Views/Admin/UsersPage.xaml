@@ -19,8 +19,7 @@
 
     <!-- Search in the navigation bar -->
     <Shell.TitleView>
-        <SearchBar Placeholder="Логин, почта, телефон, имя" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}"
-                   BackgroundColor="Transparent" VerticalOptions="Center" />
+        <controls:SearchField Placeholder="Логин, почта, телефон, имя" Text="{Binding SearchText}" SearchCommand="{Binding SearchCommand}" Margin="0,0,4,0" />
     </Shell.TitleView>
 
     <Grid RowDefinitions="Auto,*" Padding="12,8,12,0" RowSpacing="8">

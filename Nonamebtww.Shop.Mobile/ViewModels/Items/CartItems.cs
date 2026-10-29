@@ -21,7 +21,7 @@ public sealed record CartLineItem(
   public static CartLineItem From(CartItemDto item) => new(
     item.ProductId,
     item.Name,
-    ImageSources.Photo(item.PhotoUrl),
+    ImageSources.Thumbnail(item.PhotoUrl),
     item.Quantity,
     DisplayText.Money(item.Price) + " / шт.",
     DisplayText.Money(item.LineTotal),

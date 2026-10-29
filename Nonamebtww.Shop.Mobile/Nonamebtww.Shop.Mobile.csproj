@@ -32,6 +32,11 @@
         <WindowsPackageType>None</WindowsPackageType>
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios'">15.0</SupportedOSPlatformVersion>
+        <!-- iOS Release has no JIT, and EF Core refuses runtime model building without dynamic code
+             ("Model building is not supported when publishing with NativeAOT"), so the app could not start.
+             "-all" turns the interpreter on (dynamic code allowed) but still AOT-compiles every assembly. -->
+        <MtouchInterpreter Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' And '$(Configuration)' == 'Release'">-all</MtouchInterpreter>
+        <DynamicCodeSupport Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'ios' And '$(Configuration)' == 'Release'">true</DynamicCodeSupport>
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'android'">23.0</SupportedOSPlatformVersion>
     </PropertyGroup>
 
