@@ -4,6 +4,7 @@ using Nonamebtww.Shop.Application.Models.DTOs.Auth;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Common;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Security;
+using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Storage;
 using Nonamebtww.Shop.Domain.Aggregates.UserAggregate;
 using Nonamebtww.Shop.Domain.Exceptions;
 using Nonamebtww.Shop.Domain.Services.Abstractions.Interfaces;
@@ -19,6 +20,7 @@ internal sealed class LocalAuthApi(
   IUsersRepository users,
   IUnitOfWork unitOfWork,
   ITokenService tokens,
+  ISessionStore sessions,
   IClock clock) : IAuthApi {
   public Task<Result<RegistrationPending>> RegisterAsync(RegisterRequest request, CancellationToken ct = default) =>
     auth.RegisterAsync(request, ct);
@@ -52,6 +54,13 @@ internal sealed class LocalAuthApi(
       match.User.RecordSignIn(match.Device.Name, match.Device.IpAddress, issued.RefreshToken, clock.UtcNow);
       await users.UpdateAsync(match.User, ct);
       await unitOfWork.SaveChangesAsync(ct);
+
+      // Клиент и «сервер» здесь — одно приложение: сразу обновляем сохранённую сессию этого устройства,
+      // иначе её refresh-токен разойдётся с записью устройства в БД.
+      if (await sessions.LoadAsync(ct) is { } stored && stored.DeviceId == match.Device.Id) {
+        await sessions.SaveAsync(stored with { Tokens = issued }, ct);
+      }
+
       return issued;
     } catch (DomainException ex) {
       // Аккаунт заблокирован или не подтверждён.
