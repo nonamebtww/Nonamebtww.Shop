@@ -23,6 +23,9 @@ public sealed class InfrastructureOptions {
   /// <summary>Базовый адрес backend API (используется только при UseRemoteApi = true).</summary>
   public Uri? ApiBaseUrl { get; set; }
 
+  /// <summary>Таймаут HTTP-запросов к backend.</summary>
+  public TimeSpan ApiTimeout { get; set; } = TimeSpan.FromSeconds(30);
+
   /// <summary>Срок жизни локального access-токена.</summary>
   public TimeSpan AccessTokenLifetime { get; set; } = TimeSpan.FromDays(30);
 

@@ -51,6 +51,7 @@ public static class DependencyInjection {
     services.TryAddSingleton(new ApiOptions {
       UseRemoteApi = options.UseRemoteApi,
       BaseAddress = options.ApiBaseUrl,
+      Timeout = options.ApiTimeout,
     });
     services.AddLogging();
 
