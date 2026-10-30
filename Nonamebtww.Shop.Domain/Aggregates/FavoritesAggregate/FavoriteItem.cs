@@ -3,7 +3,7 @@ using Nonamebtww.Shop.Domain.Entities.Abstractions;
 
 namespace Nonamebtww.Shop.Domain.Aggregates.FavoritesAggregate;
 
-/// <summary>Товар в избранном (IDEF1X «Избранное»), часть агрегата <see cref="Favorites"/>.</summary>
+/// <summary>Товар в избранном (IDEF1X «Позиция избранного»), часть агрегата <see cref="Favorites"/>.</summary>
 public class FavoriteItem : Entity<Guid> {
   private FavoriteItem() { }
 

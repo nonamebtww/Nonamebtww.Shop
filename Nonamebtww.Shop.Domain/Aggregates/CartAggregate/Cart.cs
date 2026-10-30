@@ -6,7 +6,7 @@ using Nonamebtww.Shop.Domain.ValueObjects;
 namespace Nonamebtww.Shop.Domain.Aggregates.CartAggregate;
 
 /// <summary>
-/// Корзина покупателя: одна на пользователя. Цены в корзине не хранятся —
+/// Корзина покупателя (IDEF1X «Корзина»): одна на пользователя. Цены в корзине не хранятся —
 /// актуальная сумма считается по текущим ценам товаров (<see cref="CalculateTotal"/>).
 /// Наличие на складе проверяет приложение.
 /// </summary>

@@ -3,7 +3,7 @@ using Nonamebtww.Shop.Domain.Entities.Abstractions;
 
 namespace Nonamebtww.Shop.Domain.Aggregates.FavoritesAggregate;
 
-/// <summary>Список избранных товаров покупателя: один на пользователя.</summary>
+/// <summary>Список избранных товаров покупателя (IDEF1X «Избранное»): один на пользователя.</summary>
 public class Favorites : AggregateRoot<Guid> {
   private readonly List<FavoriteItem> _items = [];
 

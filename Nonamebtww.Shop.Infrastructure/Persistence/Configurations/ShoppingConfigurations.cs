@@ -52,7 +52,7 @@ internal sealed class FavoritesConfiguration : IEntityTypeConfiguration<Favorite
 
 internal sealed class FavoriteItemConfiguration : IEntityTypeConfiguration<FavoriteItem> {
   public void Configure(EntityTypeBuilder<FavoriteItem> builder) {
-    // IDEF1X «Избранное».
+    // IDEF1X «Позиция избранного».
     builder.ToTable("favorite_items");
     builder.HasKey(x => x.Id);
     builder.Property(x => x.Id).ValueGeneratedNever();
