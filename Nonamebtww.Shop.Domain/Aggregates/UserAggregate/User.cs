@@ -10,6 +10,7 @@ namespace Nonamebtww.Shop.Domain.Aggregates.UserAggregate;
 /// <summary>
 /// Пользователь (IDEF1X «Пользователь»). Агрегат включает устройства входа и коды подтверждения.
 /// Хэширование пароля — забота приложения: сюда передаётся готовый хэш.
+/// Для связи нужен хотя бы один контакт: email или телефон.
 /// </summary>
 public class User : AggregateRoot<Guid> {
   private readonly List<Device> _devices = [];
@@ -21,12 +22,13 @@ public class User : AggregateRoot<Guid> {
     Guid id,
     UserRole role,
     Login login,
-    Email email,
+    Email? email,
     PhoneNumber? phone,
     string passwordHash,
     string firstName,
     string? lastName,
     DateTimeOffset registeredAt) : base(id) {
+    EnsureContact(email, phone);
     Role = role;
     Login = login;
     Email = email;
@@ -42,10 +44,10 @@ public class User : AggregateRoot<Guid> {
   /// <summary>Логин (AK1).</summary>
   public Login Login { get; private set; } = null!;
 
-  /// <summary>Email (AK2).</summary>
-  public Email Email { get; private set; } = null!;
+  /// <summary>Email (AK2), необязателен, если указан телефон.</summary>
+  public Email? Email { get; private set; }
 
-  /// <summary>Телефон (AK3), необязателен.</summary>
+  /// <summary>Телефон (AK3), необязателен, если указан email.</summary>
   public PhoneNumber? Phone { get; private set; }
 
   public string PasswordHash { get; private set; } = null!;
@@ -57,18 +59,24 @@ public class User : AggregateRoot<Guid> {
   public string? BlockReason { get; private set; }
   public DateTimeOffset? BlockedAt { get; private set; }
 
+  /// <summary>Дата удаления аккаунта. Удалённый аккаунт обезличен, войти в него нельзя.</summary>
+  public DateTimeOffset? DeletedAt { get; private set; }
+
+  public bool IsDeleted => DeletedAt is not null;
+
   public IReadOnlyCollection<Device> Devices => _devices.AsReadOnly();
   public IReadOnlyCollection<ConfirmationCode> ConfirmationCodes => _confirmationCodes.AsReadOnly();
 
   public string FullName => LastName is null ? FirstName : $"{FirstName} {LastName}";
 
   /// <summary>
-  /// Регистрация. Уникальность логина, email и телефона проверяет приложение через <see cref="IUsersRepository"/>.
-  /// Сотрудники создаются сразу подтверждёнными (<paramref name="confirmed"/>), покупатели подтверждают email кодом.
+  /// Регистрация по email или по телефону. Уникальность логина, email и телефона проверяет приложение
+  /// через <see cref="IUsersRepository"/>. Сотрудники создаются сразу подтверждёнными (<paramref name="confirmed"/>),
+  /// покупатели подтверждают регистрацию кодом из письма или SMS.
   /// </summary>
   public static User Register(
     Login login,
-    Email email,
+    Email? email,
     PhoneNumber? phone,
     string passwordHash,
     string firstName,
@@ -79,7 +87,7 @@ public class User : AggregateRoot<Guid> {
     var user = new User(Guid.NewGuid(), role, login, email, phone, passwordHash, firstName, lastName, now) {
       IsConfirmed = confirmed,
     };
-    user.Raise(new UserRegistered(user.Id, login.Value, email.Value, role));
+    user.Raise(new UserRegistered(user.Id, login.Value, email?.Value, phone?.Value, role));
     return user;
   }
 
@@ -89,8 +97,9 @@ public class User : AggregateRoot<Guid> {
     Raise(new UserConfirmed(Id));
   }
 
-  /// <summary>Проверка перед входом: аккаунт подтверждён и не заблокирован.</summary>
+  /// <summary>Проверка перед входом: аккаунт не удалён, подтверждён и не заблокирован.</summary>
   public void EnsureCanSignIn() {
+    if (IsDeleted) throw new DomainException("Аккаунт удалён.");
     if (IsBlocked)
       throw new DomainException(BlockReason is null
         ? "Аккаунт заблокирован."
@@ -134,19 +143,49 @@ public class User : AggregateRoot<Guid> {
     Raise(new UserPasswordChanged(Id));
   }
 
-  public void UpdateProfile(string firstName, string? lastName, PhoneNumber? phone) {
+  public void UpdateProfile(string firstName, string? lastName) {
     FirstName = Guard.NotEmpty(firstName, "Имя", 64);
     LastName = Guard.Optional(lastName, "Фамилия", 64);
-    Phone = phone;
     Raise(new UserProfileUpdated(Id));
   }
 
-  public void ChangeEmail(Email email) {
-    if (Email == email) return;
+  /// <summary>Смена контактов. Один из них можно убрать, оба сразу — нельзя.</summary>
+  public void ChangeContacts(Email? email, PhoneNumber? phone) {
+    EnsureContact(email, phone);
 
-    var old = Email;
-    Email = email;
-    Raise(new UserEmailChanged(Id, old.Value, email.Value));
+    if (Email != email) {
+      var old = Email;
+      Email = email;
+      Raise(new UserEmailChanged(Id, old?.Value, email?.Value));
+    }
+
+    if (Phone != phone) {
+      var old = Phone;
+      Phone = phone;
+      Raise(new UserPhoneChanged(Id, old?.Value, phone?.Value));
+    }
+  }
+
+  /// <summary>
+  /// Удаление аккаунта по просьбе пользователя. Запись остаётся (на неё ссылаются заказы и отзывы),
+  /// но персональные данные стираются, вход закрывается на всех устройствах.
+  /// Незавершённые заказы проверяет приложение.
+  /// </summary>
+  public void Delete(DateTimeOffset now) {
+    if (IsDeleted) throw new DomainException("Аккаунт уже удалён.");
+    if (Role == UserRole.Owner) throw new DomainException("Аккаунт владельца магазина удалить нельзя.");
+
+    Login = new Login($"deleted_{Id:N}"[..Login.MaxLength]);
+    Email = null;
+    Phone = null;
+    FirstName = "Удалённый";
+    LastName = "пользователь";
+    PasswordHash = "deleted";
+    DeletedAt = now;
+
+    SignOutEverywhere();
+    foreach (var code in _confirmationCodes.Where(c => !c.IsUsed)) code.MarkUsed();
+    Raise(new UserDeleted(Id));
   }
 
   /// <summary>Фиксирует вход: обновляет активное устройство с тем же названием или добавляет новое.</summary>
@@ -182,6 +221,7 @@ public class User : AggregateRoot<Guid> {
   /// </summary>
   public ConfirmationCode IssueCode(ConfirmationCodePurpose purpose, string code, DateTimeOffset now, TimeSpan lifetime) {
     if (lifetime <= TimeSpan.Zero) throw new DomainException("Срок действия кода должен быть положительным.");
+    if (IsDeleted) throw new DomainException("Аккаунт удалён.");
     if (purpose == ConfirmationCodePurpose.Registration && IsConfirmed)
       throw new DomainException("Аккаунт уже подтверждён.");
     if (purpose == ConfirmationCodePurpose.PasswordReset && IsBlocked)
@@ -191,7 +231,7 @@ public class User : AggregateRoot<Guid> {
 
     var confirmationCode = new ConfirmationCode(purpose, code, now, lifetime);
     _confirmationCodes.Add(confirmationCode);
-    Raise(new ConfirmationCodeIssued(Id, Email.Value, purpose, confirmationCode.Code, confirmationCode.ExpiresAt));
+    Raise(new ConfirmationCodeIssued(Id, Email?.Value, Phone?.Value, purpose, confirmationCode.Code, confirmationCode.ExpiresAt));
     return confirmationCode;
   }
 
@@ -213,5 +253,9 @@ public class User : AggregateRoot<Guid> {
 
     confirmationCode.MarkUsed();
     if (purpose == ConfirmationCodePurpose.Registration) Confirm();
+  }
+
+  private static void EnsureContact(Email? email, PhoneNumber? phone) {
+    if (email is null && phone is null) throw new DomainException("Укажите email или телефон.");
   }
 }

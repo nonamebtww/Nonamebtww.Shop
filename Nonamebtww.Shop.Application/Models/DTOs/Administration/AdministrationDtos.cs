@@ -5,7 +5,7 @@ namespace Nonamebtww.Shop.Application.Models.DTOs.Administration;
 public sealed record UserSummaryDto(
   Guid Id,
   string Login,
-  string Email,
+  string? Email,
   string? Phone,
   string FullName,
   UserRole Role,

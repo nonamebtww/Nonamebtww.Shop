@@ -2,8 +2,6 @@ using Nonamebtww.Shop.Application.Common;
 using Nonamebtww.Shop.Application.Common.Results;
 using Nonamebtww.Shop.Application.Mappings;
 using Nonamebtww.Shop.Application.Models.DTOs.Administration;
-using Nonamebtww.Shop.Application.Models.DTOs.Notifications;
-using Nonamebtww.Shop.Application.Models.Enums;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Administration;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Auth;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Common;
@@ -30,12 +28,12 @@ public sealed class UserAdministrationService(
         return Result.Failure<PagedList<UserSummaryDto>>(owner.Error!);
       }
 
-      IEnumerable<User> all = await users.GetAllAsync(ct);
+      IEnumerable<User> all = (await users.GetAllAsync(ct)).Where(u => !u.IsDeleted);
 
       if (!string.IsNullOrWhiteSpace(query.Search)) {
         var s = query.Search.Trim();
         all = all.Where(u => u.Login.Value.Contains(s, StringComparison.OrdinalIgnoreCase)
-          || u.Email.Value.Contains(s, StringComparison.OrdinalIgnoreCase)
+          || (u.Email?.Value.Contains(s, StringComparison.OrdinalIgnoreCase) ?? false)
           || (u.Phone?.Value.Contains(s) ?? false)
           || u.FullName.Contains(s, StringComparison.OrdinalIgnoreCase));
       }
@@ -68,8 +66,8 @@ public sealed class UserAdministrationService(
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Изменены права доступа", $"Ваша роль: {request.Role.ToDisplayName()}. Войдите в аккаунт заново.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Изменены права доступа",
+        $"Ваша роль: {request.Role.ToDisplayName()}. Войдите в аккаунт заново.", ct);
 
       return user.ToSummary();
     });
@@ -90,8 +88,8 @@ public sealed class UserAdministrationService(
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Аккаунт заблокирован", $"Ваш аккаунт заблокирован. Причина: {request.Reason}", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Аккаунт заблокирован",
+        $"Ваш аккаунт заблокирован. Причина: {request.Reason}", ct);
 
       return user.ToSummary();
     });
@@ -108,8 +106,7 @@ public sealed class UserAdministrationService(
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Аккаунт разблокирован", "Доступ к вашему аккаунту восстановлен.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Аккаунт разблокирован", "Доступ к вашему аккаунту восстановлен.", ct);
 
       return user.ToSummary();
     });
@@ -126,6 +123,6 @@ public sealed class UserAdministrationService(
     }
 
     var user = await users.GetByIdAsync(userId, ct);
-    return user is null ? Errors.NotFound("user") : user;
+    return user is null || user.IsDeleted ? Errors.NotFound("user") : user;
   }
 }

@@ -76,7 +76,7 @@ public sealed partial class PersonalDataViewModel(
   private void Apply(ProfileDto dto) {
     FirstName = dto.FirstName;
     LastName = dto.LastName ?? string.Empty;
-    Email = dto.Email;
+    Email = dto.Email ?? string.Empty;
     Phone = dto.Phone ?? string.Empty;
   }
 }

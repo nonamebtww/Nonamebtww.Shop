@@ -112,7 +112,7 @@ public sealed partial class UserDetailsViewModel(
 
     Info.Clear();
     Info.Add(new InfoRow("Логин", $"@{user.Login}"));
-    Info.Add(new InfoRow("Email", user.Email));
+    Info.Add(new InfoRow("Email", string.IsNullOrWhiteSpace(user.Email) ? "не указан" : user.Email));
     Info.Add(new InfoRow("Телефон", string.IsNullOrWhiteSpace(user.Phone) ? "не указан" : user.Phone));
     Info.Add(new InfoRow("Роль", user.Role.ToDisplayName()));
     Info.Add(new InfoRow("Дата регистрации", DisplayText.Date(user.RegisteredAt)));

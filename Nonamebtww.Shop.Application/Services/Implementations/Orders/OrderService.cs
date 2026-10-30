@@ -276,8 +276,7 @@ public sealed class OrderService(
     await notifications.SendAsync(new NotificationMessage(NotificationChannel.InApp, null, subject, body, order.UserId), ct);
 
     if (customer is not null) {
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, customer.Email.Value,
-        subject, body, order.UserId), ct);
+      await notifications.SendToContactAsync(customer, subject, body, ct);
     }
   }
 }

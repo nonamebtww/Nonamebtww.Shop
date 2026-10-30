@@ -67,6 +67,7 @@ public static class DependencyInjection {
     services.TryAddSingleton<IValidator<ResetPasswordRequest>>(ResetPasswordRequestValidator.Instance);
     services.TryAddSingleton<IValidator<UpdateProfileRequest>>(UpdateProfileRequestValidator.Instance);
     services.TryAddSingleton<IValidator<ChangePasswordRequest>>(ChangePasswordRequestValidator.Instance);
+    services.TryAddSingleton<IValidator<DeleteAccountRequest>>(DeleteAccountRequestValidator.Instance);
     services.TryAddSingleton<IValidator<BlockUserRequest>>(BlockUserRequestValidator.Instance);
     services.TryAddSingleton<IValidator<SaveCategoryRequest>>(SaveCategoryRequestValidator.Instance);
     services.TryAddSingleton<IValidator<SaveProductRequest>>(SaveProductRequestValidator.Instance);

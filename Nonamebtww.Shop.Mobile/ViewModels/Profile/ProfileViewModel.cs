@@ -41,6 +41,10 @@ public sealed partial class ProfileViewModel(
   [Reactive]
   public partial bool IsStaff { get; set; }
 
+  /// <summary>The shop owner's account cannot be deleted.</summary>
+  [Reactive]
+  public partial bool CanDeleteAccount { get; set; }
+
   [Reactive]
   public partial string SearchText { get; set; } = string.Empty;
 
@@ -68,6 +72,9 @@ public sealed partial class ProfileViewModel(
 
   [ReactiveCommand]
   private Task ChangePasswordAsync() => Navigation.GoToAsync(Routes.ChangePassword);
+
+  [ReactiveCommand]
+  private Task DeleteAccountAsync() => Navigation.GoToAsync(Routes.DeleteAccount);
 
   [ReactiveCommand]
   private Task OpenOrdersAsync() => Navigation.GoToRootAsync($"{Routes.Main}/{Routes.Orders}");
@@ -102,5 +109,6 @@ public sealed partial class ProfileViewModel(
     RoleText = dto.Role.ToDisplayName();
     RegisteredText = $"С нами с {DisplayText.Date(dto.RegisteredAt)}";
     IsStaff = dto.Role.IsStaff();
+    CanDeleteAccount = dto.Role != UserRole.Owner;
   }
 }

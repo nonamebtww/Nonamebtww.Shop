@@ -8,7 +8,7 @@ internal static class DemoCatalog {
   /// Версия демо-данных и схемы. При изменении сида или модели увеличьте её:
   /// DatabaseInitializer пересоздаст локальную БД при следующем запуске.
   /// </summary>
-  public const int Version = 2;
+  public const int Version = 3;
 
   internal sealed record CategoryData(string Key, string? ParentKey, string Name, string Description, string? Photo);
 

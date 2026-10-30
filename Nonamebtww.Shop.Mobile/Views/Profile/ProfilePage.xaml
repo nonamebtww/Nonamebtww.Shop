@@ -97,6 +97,13 @@
                         </Grid.GestureRecognizers>
                     </Grid>
                 </Border>
+
+                <Label Text="Удалить аккаунт" Style="{StaticResource CaptionLabel}" FontSize="14" HorizontalOptions="Center"
+                       IsVisible="{Binding CanDeleteAccount}" Padding="12,4">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding DeleteAccountCommand}" />
+                    </Label.GestureRecognizers>
+                </Label>
             </VerticalStackLayout>
         </ScrollView>
 

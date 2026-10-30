@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<views:ContentPageBase
+    x:Class="Nonamebtww.Shop.Mobile.Views.Profile.DeleteAccountPage"
+    x:TypeArguments="vm:DeleteAccountViewModel"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:views="clr-namespace:Nonamebtww.Shop.Mobile.Views"
+    xmlns:vm="clr-namespace:Nonamebtww.Shop.Mobile.ViewModels.Profile"
+    x:DataType="vm:DeleteAccountViewModel"
+    Shell.TabBarIsVisible="False"
+    Title="Удаление аккаунта">
+
+    <VerticalStackLayout Padding="16" Spacing="12">
+        <Label Style="{StaticResource BodyLabel}"
+               Text="Логин, почта, телефон и имя будут стёрты, все устройства выйдут из аккаунта. История заказов и отзывы останутся без ваших данных. Восстановить аккаунт будет нельзя." />
+        <Label Style="{StaticResource CaptionLabel}"
+               Text="Если у вас есть незавершённые заказы, дождитесь их получения или отмените их." />
+        <Border Style="{StaticResource FieldBorder}">
+            <Entry Placeholder="Пароль" Text="{Binding Password}" IsPassword="True" />
+        </Border>
+        <Button Text="Удалить аккаунт" Style="{StaticResource DangerButton}" Command="{Binding DeleteCommand}" />
+        <ActivityIndicator IsRunning="{Binding IsBusy}" IsVisible="{Binding IsBusy}" />
+    </VerticalStackLayout>
+</views:ContentPageBase>

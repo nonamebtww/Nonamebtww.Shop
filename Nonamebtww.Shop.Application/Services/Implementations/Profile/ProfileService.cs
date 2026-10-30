@@ -1,29 +1,31 @@
 using Nonamebtww.Shop.Application.Common;
 using Nonamebtww.Shop.Application.Common.Results;
 using Nonamebtww.Shop.Application.Mappings;
-using Nonamebtww.Shop.Application.Models.DTOs.Notifications;
 using Nonamebtww.Shop.Application.Models.DTOs.Profile;
-using Nonamebtww.Shop.Application.Models.Enums;
+using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Common;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Notifications;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Profile;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Security;
 using Nonamebtww.Shop.Application.Services.Abstractions.Interfaces.Storage;
 using Nonamebtww.Shop.Application.Services.Implementations.Auth;
 using Nonamebtww.Shop.Application.Validation;
+using Nonamebtww.Shop.Domain.Aggregates.OrderAggregate;
 using Nonamebtww.Shop.Domain.Aggregates.UserAggregate;
 using Nonamebtww.Shop.Domain.Services.Abstractions.Interfaces;
 using Nonamebtww.Shop.Domain.ValueObjects;
 
 namespace Nonamebtww.Shop.Application.Services.Implementations.Profile;
 
-/// <summary>Управление профилем (DFD 4).</summary>
+/// <summary>Управление профилем (DFD 4, декомпозиция «3. Управление профилем»).</summary>
 public sealed class ProfileService(
   CurrentUserService currentUser,
   IUsersRepository users,
+  IOrdersRepository orders,
   IUnitOfWork unitOfWork,
   IPasswordHasher passwordHasher,
   ISessionStore sessions,
-  INotificationService notifications) : ApplicationService(currentUser), IProfileService {
+  INotificationService notifications,
+  IClock clock) : ApplicationService(currentUser), IProfileService {
 
   public Task<Result<ProfileDto>> GetAsync(CancellationToken ct = default) =>
     Run<ProfileDto>(async () => {
@@ -43,10 +45,10 @@ public sealed class ProfileService(
       }
 
       var user = loaded.Value;
-      var email = new Email(request.Email);
+      var email = string.IsNullOrWhiteSpace(request.Email) ? null : new Email(request.Email);
       var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : new PhoneNumber(request.Phone);
 
-      if (email != user.Email && await users.GetByEmailAsync(email, ct) is not null) {
+      if (email is not null && email != user.Email && await users.GetByEmailAsync(email, ct) is not null) {
         return Error.Validation(nameof(request.Email), "Этот email уже зарегистрирован.");
       }
 
@@ -54,15 +56,14 @@ public sealed class ProfileService(
         return Error.Validation(nameof(request.Phone), "Этот телефон уже зарегистрирован.");
       }
 
-      user.UpdateProfile(request.FirstName, request.LastName, phone);
-      user.ChangeEmail(email);
+      user.UpdateProfile(request.FirstName, request.LastName);
+      user.ChangeContacts(email, phone);
 
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
       currentUser.Update(user.ToCurrentUser());
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Профиль изменён", "Данные вашего профиля были обновлены.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Профиль изменён", "Данные вашего профиля были обновлены.", ct);
 
       return user.ToProfile();
     });
@@ -88,8 +89,7 @@ public sealed class ProfileService(
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Пароль изменён", "Пароль вашего аккаунта был изменён.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Пароль изменён", "Пароль вашего аккаунта был изменён.", ct);
 
       await sessions.ClearAsync(ct);
       currentUser.SignOut();
@@ -132,6 +132,53 @@ public sealed class ProfileService(
         currentUser.SignOut();
       }
 
+      return Result.Success();
+    });
+
+  /// <summary>
+  /// Удаление аккаунта (3.5). Нужен пароль; нельзя удалить аккаунт владельца и аккаунт
+  /// с незавершёнными заказами или доставками. Запись пользователя остаётся для истории заказов и отзывов,
+  /// но логин, почта, телефон и имя стираются, все устройства выходят из аккаунта.
+  /// </summary>
+  public Task<Result> DeleteAccountAsync(DeleteAccountRequest request, CancellationToken ct = default) =>
+    Execute(async () => {
+      if (DeleteAccountRequestValidator.Instance.Validate(request) is { } invalid) {
+        return Result.Failure(invalid);
+      }
+
+      var loaded = await LoadCurrentAsync(ct);
+      if (loaded.IsFailure) {
+        return Result.Failure(loaded.Error!);
+      }
+
+      var user = loaded.Value;
+      if (!passwordHasher.Verify(request.Password, user.PasswordHash)) {
+        return Error.Validation(nameof(request.Password), "Пароль указан неверно.");
+      }
+
+      if ((await orders.GetByUserAsync(user.Id, ct)).Any(o => o.Status.IsActive())) {
+        return Error.Conflict("profile.active_orders",
+          "У вас есть незавершённые заказы. Удалить аккаунт можно, когда они будут получены или отменены.");
+      }
+
+      if ((await orders.GetByCourierAsync(user.Id, ct)).Any(o => o.Status.IsActive())) {
+        return Error.Conflict("profile.active_deliveries",
+          "За вами закреплены незавершённые доставки. Удалить аккаунт можно после их завершения.");
+      }
+
+      // Письмо или SMS уходит на прежний контакт, поэтому собираем его до того, как контакты будут стёрты.
+      var farewell = user.ToContact("Аккаунт удалён", "Ваш аккаунт удалён, личные данные стёрты.");
+
+      user.Delete(clock.UtcNow);
+      await users.UpdateAsync(user, ct);
+      await unitOfWork.SaveChangesAsync(ct);
+
+      if (farewell is not null) {
+        await notifications.SendAsync(farewell, ct);
+      }
+
+      await sessions.ClearAsync(ct);
+      currentUser.SignOut();
       return Result.Success();
     });
 

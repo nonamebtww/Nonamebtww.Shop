@@ -158,6 +158,9 @@ internal sealed class LocalProfileApi(IProfileService profile) : IProfileApi {
 
   public Task<Result> SignOutDeviceAsync(Guid deviceId, CancellationToken ct = default) =>
     profile.SignOutDeviceAsync(deviceId, ct);
+
+  public Task<Result> DeleteAccountAsync(DeleteAccountRequest request, CancellationToken ct = default) =>
+    profile.DeleteAccountAsync(request, ct);
 }
 
 internal sealed class LocalUserAdministrationApi(IUserAdministrationService administration) : IUserAdministrationApi {

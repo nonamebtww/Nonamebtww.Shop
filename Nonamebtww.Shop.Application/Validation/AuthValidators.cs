@@ -9,7 +9,8 @@ public sealed class RegisterRequestValidator : IValidator<RegisterRequest> {
 
   public Error? Validate(RegisterRequest model) => new ValidationBuilder()
     .Rule(Rules.IsLogin(model.Login), nameof(model.Login), "Логин: 3–32 символа, латиница, цифры, «_», «.», «-».")
-    .Rule(Rules.IsEmail(model.Email), nameof(model.Email), "Введите корректный email.")
+    .Rule(!string.IsNullOrWhiteSpace(model.Email) || !string.IsNullOrWhiteSpace(model.Phone), nameof(model.Email), "Укажите email или телефон.")
+    .Rule(string.IsNullOrWhiteSpace(model.Email) || Rules.IsEmail(model.Email), nameof(model.Email), "Введите корректный email.")
     .Rule(string.IsNullOrWhiteSpace(model.Phone) || Rules.IsPhone(model.Phone), nameof(model.Phone), "Введите телефон в формате +7XXXXXXXXXX.")
     .Rule(Rules.IsStrongPassword(model.Password), nameof(model.Password), $"Пароль: не короче {Rules.MinPasswordLength} символов, буквы и цифры.")
     .Rule(!string.IsNullOrWhiteSpace(model.FirstName), nameof(model.FirstName), "Введите имя.")

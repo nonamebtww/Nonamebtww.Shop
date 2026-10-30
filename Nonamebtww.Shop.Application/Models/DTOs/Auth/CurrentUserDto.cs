@@ -5,7 +5,7 @@ namespace Nonamebtww.Shop.Application.Models.DTOs.Auth;
 public sealed record CurrentUserDto(
   Guid Id,
   string Login,
-  string Email,
+  string? Email,
   string? Phone,
   string FirstName,
   string? LastName,

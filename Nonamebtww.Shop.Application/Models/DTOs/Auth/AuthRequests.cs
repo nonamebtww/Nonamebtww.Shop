@@ -2,10 +2,10 @@ using Nonamebtww.Shop.Application.Models.Enums;
 
 namespace Nonamebtww.Shop.Application.Models.DTOs.Auth;
 
-/// <summary>«Данные регистрации».</summary>
+/// <summary>«Данные регистрации»: нужен email или телефон (можно оба).</summary>
 public sealed record RegisterRequest(
   string Login,
-  string Email,
+  string? Email,
   string? Phone,
   string Password,
   string FirstName,

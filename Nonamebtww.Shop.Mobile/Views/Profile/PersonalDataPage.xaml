@@ -31,6 +31,7 @@
                 <Border Style="{StaticResource FieldBorder}">
                     <Entry Placeholder="+7 900 000-00-00" Text="{Binding Phone}" Keyboard="Telephone" />
                 </Border>
+                <Label Text="Достаточно почты или телефона: одно из полей можно оставить пустым." Style="{StaticResource CaptionLabel}" />
                 <Button Text="Сохранить изменения" Command="{Binding SaveCommand}" Margin="0,6,0,0" />
 
                 <Label Text="Устройства" Style="{StaticResource SectionLabel}" Margin="0,16,0,0" />

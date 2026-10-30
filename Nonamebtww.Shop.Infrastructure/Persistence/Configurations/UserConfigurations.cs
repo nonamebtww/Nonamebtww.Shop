@@ -27,9 +27,11 @@ internal sealed class UserConfiguration : IEntityTypeConfiguration<User> {
     builder.Property(x => x.Id).ValueGeneratedNever();
     builder.Ignore(x => x.DomainEvents);
     builder.Ignore(x => x.FullName);
+    builder.Ignore(x => x.IsDeleted);
 
     builder.Property(x => x.Login).HasConversion(ValueObjectConverters.Login).HasMaxLength(32).IsRequired();
-    builder.Property(x => x.Email).HasConversion(ValueObjectConverters.Email).HasMaxLength(254).IsRequired();
+    // Email или телефон: регистрация возможна по любому из них, поэтому оба столбца допускают NULL.
+    builder.Property(x => x.Email).HasConversion((ValueConverter)ValueObjectConverters.Email).HasMaxLength(254);
     builder.Property(x => x.Phone).HasConversion((ValueConverter)ValueObjectConverters.Phone).HasMaxLength(16);
     builder.HasIndex(x => x.Login).IsUnique();
     builder.HasIndex(x => x.Email).IsUnique();

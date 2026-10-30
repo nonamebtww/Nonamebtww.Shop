@@ -6,7 +6,7 @@ namespace Nonamebtww.Shop.Application.Models.DTOs.Profile;
 public sealed record ProfileDto(
   Guid Id,
   string Login,
-  string Email,
+  string? Email,
   string? Phone,
   string FirstName,
   string? LastName,
@@ -14,9 +14,12 @@ public sealed record ProfileDto(
   DateTimeOffset RegisteredAt,
   bool IsConfirmed);
 
-/// <summary>«Изменения профиля».</summary>
-public sealed record UpdateProfileRequest(string FirstName, string? LastName, string Email, string? Phone);
+/// <summary>«Изменения профиля». Email или телефон можно оставить пустым, но не оба сразу.</summary>
+public sealed record UpdateProfileRequest(string FirstName, string? LastName, string? Email, string? Phone);
 
 public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
+
+/// <summary>«Запрос на удаление» аккаунта, подтверждённый паролем.</summary>
+public sealed record DeleteAccountRequest(string Password);
 
 public sealed record DeviceDto(Guid Id, string Name, string? IpAddress, DateTimeOffset LastLoginAt, bool IsActive, bool IsCurrent);

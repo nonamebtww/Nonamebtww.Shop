@@ -9,4 +9,5 @@ public interface IProfileApi {
   Task<Result> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken ct = default);
   Task<Result<IReadOnlyList<DeviceDto>>> GetDevicesAsync(CancellationToken ct = default);
   Task<Result> SignOutDeviceAsync(Guid deviceId, CancellationToken ct = default);
+  Task<Result> DeleteAccountAsync(DeleteAccountRequest request, CancellationToken ct = default);
 }

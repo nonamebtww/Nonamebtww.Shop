@@ -173,6 +173,9 @@ internal sealed class HttpProfileApi(HttpClient http, ISessionStore session) : H
 
   public Task<Result> SignOutDeviceAsync(Guid deviceId, CancellationToken ct = default) =>
     SendAsync(HttpMethod.Delete, $"api/v1/profile/devices/{deviceId}", null, ct);
+
+  public Task<Result> DeleteAccountAsync(DeleteAccountRequest request, CancellationToken ct = default) =>
+    SendAsync(HttpMethod.Post, "api/v1/profile/delete", request, ct);
 }
 
 internal sealed class HttpUserAdministrationApi(HttpClient http, ISessionStore session)

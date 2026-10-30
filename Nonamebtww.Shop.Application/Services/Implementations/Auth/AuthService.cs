@@ -35,14 +35,14 @@ public sealed class AuthService(
       }
 
       var login = new Login(request.Login);
-      var email = new Email(request.Email);
+      var email = string.IsNullOrWhiteSpace(request.Email) ? null : new Email(request.Email);
       var phone = string.IsNullOrWhiteSpace(request.Phone) ? null : new PhoneNumber(request.Phone);
 
       if (await users.GetByLoginAsync(login, ct) is not null) {
         return Error.Validation(nameof(request.Login), "Этот логин уже занят.");
       }
 
-      if (await users.GetByEmailAsync(email, ct) is not null) {
+      if (email is not null && await users.GetByEmailAsync(email, ct) is not null) {
         return Error.Validation(nameof(request.Email), "Этот email уже зарегистрирован.");
       }
 
@@ -59,7 +59,7 @@ public sealed class AuthService(
       await unitOfWork.SaveChangesAsync(ct);
       await SendCodeAsync(user, code.Code, "Подтверждение регистрации", ct);
 
-      return new RegistrationPending(user.Id, ConfirmationCodes.MaskEmail(user.Email.Value));
+      return new RegistrationPending(user.Id, user.MaskedContact());
     });
 
   public Task<Result<AuthResult>> ConfirmRegistrationAsync(ConfirmRegistrationRequest request, CancellationToken ct = default) =>
@@ -76,8 +76,7 @@ public sealed class AuthService(
       user.UseCode(ConfirmationCodePurpose.Registration, request.Code, clock.UtcNow);
       var result = await SignInAsync(user, ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Добро пожаловать!", $"{user.FirstName}, регистрация завершена.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Добро пожаловать!", $"{user.FirstName}, регистрация завершена.", ct);
 
       return result;
     });
@@ -94,7 +93,7 @@ public sealed class AuthService(
       await unitOfWork.SaveChangesAsync(ct);
       await SendCodeAsync(user, code.Code, "Подтверждение регистрации", ct);
 
-      return new RegistrationPending(user.Id, ConfirmationCodes.MaskEmail(user.Email.Value));
+      return new RegistrationPending(user.Id, user.MaskedContact());
     });
 
   public Task<Result<AuthResult>> LoginAsync(LoginRequest request, CancellationToken ct = default) =>
@@ -205,7 +204,7 @@ public sealed class AuthService(
       await unitOfWork.SaveChangesAsync(ct);
       await SendCodeAsync(user, code.Code, "Восстановление пароля", ct);
 
-      return new PasswordResetPending(ConfirmationCodes.MaskEmail(user.Email.Value));
+      return new PasswordResetPending(user.MaskedContact());
     });
 
   public Task<Result> ResetPasswordAsync(ResetPasswordRequest request, CancellationToken ct = default) =>
@@ -224,8 +223,8 @@ public sealed class AuthService(
       await users.UpdateAsync(user, ct);
       await unitOfWork.SaveChangesAsync(ct);
 
-      await notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value,
-        "Пароль изменён", "Пароль вашего аккаунта был изменён. Все устройства вышли из аккаунта.", user.Id), ct);
+      await notifications.SendToContactAsync(user, "Пароль изменён",
+        "Пароль вашего аккаунта был изменён. Все устройства вышли из аккаунта.", ct);
 
       if (CurrentUser.UserId == user.Id) {
         await sessions.ClearAsync(ct);
@@ -258,7 +257,8 @@ public sealed class AuthService(
     return new AuthResult(dto, issued);
   }
 
+  /// <summary>Код подтверждения уходит письмом, а при регистрации по телефону — в SMS.</summary>
   private Task SendCodeAsync(User user, string code, string subject, CancellationToken ct) =>
-    notifications.SendAsync(new NotificationMessage(NotificationChannel.Email, user.Email.Value, subject,
-      $"Ваш код: {code}. Код действует {ConfirmationCodes.Lifetime.TotalMinutes:0} минут.", user.Id), ct);
+    notifications.SendToContactAsync(user, subject,
+      $"Ваш код: {code}. Код действует {ConfirmationCodes.Lifetime.TotalMinutes:0} минут.", ct);
 }

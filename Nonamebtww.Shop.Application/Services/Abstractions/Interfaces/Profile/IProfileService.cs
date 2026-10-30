@@ -10,4 +10,7 @@ public interface IProfileService {
   Task<Result> ChangePasswordAsync(ChangePasswordRequest request, CancellationToken ct = default);
   Task<Result<IReadOnlyList<DeviceDto>>> GetDevicesAsync(CancellationToken ct = default);
   Task<Result> SignOutDeviceAsync(Guid deviceId, CancellationToken ct = default);
+
+  /// <summary>Удаление аккаунта (3.5): после успеха пользователь выходит из аккаунта.</summary>
+  Task<Result> DeleteAccountAsync(DeleteAccountRequest request, CancellationToken ct = default);
 }

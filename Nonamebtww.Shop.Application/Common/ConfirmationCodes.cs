@@ -16,4 +16,8 @@ internal static class ConfirmationCodes {
 
     return $"{email[0]}***{email[at - 1]}{email[at..]}";
   }
+
+  /// <summary>Маскирует телефон для показа: +7 *** ***-**-67.</summary>
+  public static string MaskPhone(string phone) =>
+    phone.Length < 6 ? phone : $"{phone[..2]} *** ***-**-{phone[^2..]}";
 }

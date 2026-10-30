@@ -18,6 +18,7 @@ public partial class AppShell : Shell {
     Routing.RegisterRoute(Routes.Checkout, typeof(CheckoutPage));
     Routing.RegisterRoute(Routes.OrderDetails, typeof(OrderDetailsPage));
     Routing.RegisterRoute(Routes.ChangePassword, typeof(ChangePasswordPage));
+    Routing.RegisterRoute(Routes.DeleteAccount, typeof(DeleteAccountPage));
     Routing.RegisterRoute(Routes.PersonalData, typeof(PersonalDataPage));
     Routing.RegisterRoute(Routes.Notifications, typeof(NotificationsPage));
 

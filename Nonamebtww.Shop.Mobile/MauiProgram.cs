@@ -92,6 +92,7 @@ public static class MauiProgram {
       .AddScreen<OrderDetailsPage, OrderDetailsViewModel>()
       .AddScreen<ProfilePage, ProfileViewModel>()
       .AddScreen<ChangePasswordPage, ChangePasswordViewModel>()
+      .AddScreen<DeleteAccountPage, DeleteAccountViewModel>()
       .AddScreen<PersonalDataPage, PersonalDataViewModel>()
       .AddScreen<NotificationsPage, NotificationsViewModel>()
       .AddScreen<AdminHubPage, AdminHubViewModel>()
