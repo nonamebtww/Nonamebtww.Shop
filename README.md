@@ -44,7 +44,7 @@
 | `Nonamebtww.Shop.Mobile` | приложение MAUI: страницы, ViewModel, навигация Shell |
 | `Database` | SQL-скрипты базы для SQLite и PostgreSQL с тестовыми данными, см. [README](Database/README.md) |
 
-Mobile вызывает сценарии Application через интерфейсы `I*Api`. Сейчас их реализуют локальные классы поверх SQLite. Для будущего сервера уже есть HTTP-реализации, они включаются одной настройкой (см. «Конфигурация»).
+Mobile вызывает сценарии Application через интерфейсы `I*Api`. В прототипе их реализуют локальные классы, которые работают прямо с базой SQLite на устройстве.
 
 ## Установка
 
@@ -113,8 +113,6 @@ dotnet build Nonamebtww.Shop.Mobile -t:Run -f net10.0-android
 | `RecreateDatabaseOnStartup` | `false` | удалять базу при каждом запуске |
 | `DeclinePayments` | `false` | заглушка оплаты отклоняет все платежи, чтобы проверить ошибку оплаты |
 | `FakeApiLatency` | 150 мс | искусственная задержка ответов, чтобы были видны индикаторы загрузки |
-| `UseRemoteApi` | `false` | `true` переключает приложение на HTTP-клиенты сервера |
-| `ApiBaseUrl` | нет | адрес сервера при `UseRemoteApi = true` |
 
 Схема базы создаётся без миграций. Если модель данных изменилась, удалите приложение с устройства или включите `RecreateDatabaseOnStartup`.
 
